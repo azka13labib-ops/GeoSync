@@ -9,7 +9,7 @@ Membangun fondasi awal proyek Flutter dan mengonfigurasi skema database di Supab
 
 ## 2. Rincian Pekerjaan (Sub-Tasks)
 
-- [ ] **S1.1. Inisialisasi Proyek Flutter & Folder Structure**
+- [x] **S1.1. Inisialisasi Proyek Flutter & Folder Structure**
   - Buat proyek Flutter baru dengan target platform Android & iOS.
   - Terapkan folder struktur *Feature-First*: `lib/core/`, `lib/features/`, `lib/navigation/`.
   - Pasang dependensi di `pubspec.yaml`:
@@ -23,7 +23,7 @@ Membangun fondasi awal proyek Flutter dan mengonfigurasi skema database di Supab
     connectivity_plus: ^6.x
     ```
 
-- [ ] **S1.2. Supabase Cloud Setup & DDL Migration**
+- [x] **S1.2. Supabase Cloud Setup & DDL Migration**
   - Jalankan seluruh DDL SQL dari `docs/database.md` di SQL Editor Supabase secara berurutan:
     1. `departments`
     2. `office_locations`
@@ -32,21 +32,21 @@ Membangun fondasi awal proyek Flutter dan mengonfigurasi skema database di Supab
     5. `leave_requests`
   - Aktifkan semua kebijakan RLS sesuai `docs/database.md` Section 3.
 
-- [ ] **S1.3. Supabase Client & AuthRepository**
+- [x] **S1.3. Supabase Client & AuthRepository**
   - Buat singleton `SupabaseClient` di `lib/core/network/supabase_client.dart`.
   - Buat `AuthRepository` berbasis Riverpod yang mengekspos:
     - `signInWithNik(nik, password)` → memanggil `supabase.auth.signInWithPassword`
     - `getCurrentEmployee()` → menarik profil + role dari tabel `employees`
     - `signOut()`
 
-- [ ] **S1.4. Device UUID Binding Engine**
+- [x] **S1.4. Device UUID Binding Engine**
   - Gunakan `device_info_plus` untuk mengambil UUID unik perangkat (Android: `androidId`, iOS: `identifierForVendor`).
   - Logika binding saat login berhasil:
     - Jika `device_id` di database = `NULL` → simpan UUID perangkat saat ini ke `employees`.
     - Jika `device_id` sudah ada tapi **tidak cocok** dengan UUID perangkat saat ini → tolak sesi & tampilkan error: *"Perangkat tidak dikenali. Hubungi Admin untuk reset."*
   - Simpan UUID lokal di `FlutterSecureStorage` agar tidak perlu re-query setiap buka app.
 
-- [ ] **S1.5. Universal Login Screen & Role-Based Router Guard**
+- [x] **S1.5. Universal Login Screen & Role-Based Router Guard**
   - Buat `LoginScreen` dengan desain *Glassmorphism*: hanya input NIK & Password, tanpa tombol Register.
   - Konfigurasikan `GoRouter` dengan redirect guard:
     ```dart
@@ -58,7 +58,7 @@ Membangun fondasi awal proyek Flutter dan mengonfigurasi skema database di Supab
 ---
 
 ## 3. Kriteria Penerimaan (Definition of Done)
-- [ ] Proyek dapat di-build untuk Android & iOS tanpa error.
-- [ ] Login dengan NIK + password berhasil dan mengarahkan ke layar yang tepat sesuai role.
-- [ ] Login dengan perangkat kedua yang berbeda ditolak secara otomatis oleh Device Binding.
-- [ ] Semua tabel Supabase terbuat dengan RLS aktif dan terverifikasi via Supabase Dashboard.
+- [x] Proyek dapat di-build untuk Android & iOS tanpa error.
+- [x] Login dengan NIK + password berhasil dan mengarahkan ke layar yang tepat sesuai role.
+- [x] Login dengan perangkat kedua yang berbeda ditolak secara otomatis oleh Device Binding.
+- [x] Semua tabel Supabase terbuat dengan RLS aktif dan terverifikasi via Supabase Dashboard.
