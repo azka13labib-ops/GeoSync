@@ -1,98 +1,98 @@
 # GeoSync
 
-Enterprise Attendance, Geofencing, and Workforce Management System
+Sistem Absensi Enterprise, Geofencing, dan Manajemen Tenaga Kerja Terpadu
 
 ---
 
-## 1. Project Overview
+## 1. Ikhtisar Proyek
 
-GeoSync is a highly scalable, secure, and modern attendance and workforce management application engineered for enterprise organizations, factories, and distributed multi-branch corporate networks. 
+GeoSync adalah aplikasi manajemen absensi dan tenaga kerja bermutu enterprise yang tangguh, aman, dan modern, dirancang untuk korporasi skala besar, pabrik, dan organisasi yang memiliki jaringan banyak kantor cabang.
 
-Built around a **Single Unified Application** architecture, GeoSync utilizes a cohesive Flutter codebase that seamlessly switches between executive HR management interfaces and employee attendance portals based on authenticated user roles. The system enforces strict security standards, combining hardware device UUID binding, precise GPS geofencing, and cryptographic Row-Level Security (RLS) policies to eliminate fraudulent attendance practices such as buddy punching and mock location manipulation.
-
----
-
-## 2. Core Architectural Philosophy
-
-GeoSync operates on three foundational design directives:
-1. **Single Application, Dual Role System**: A single binary deployment serves both regular Employees and Executive Administrators (HR). Routing and UI presentation are dynamically determined by authenticated JWT claims and relational role mapping.
-2. **Zero Public Enrollment**: To prevent unauthorized access, public self-registration is disabled. Employee accounts can only be provisioned by verified Administrators through secure, cloud-isolated backend functions without disrupting local session tokens.
-3. **Defense-in-Depth Security**: Anti-cheat enforcement is handled simultaneously at the local client layer (Hardware UUID verification via secure storage and anti-mock GPS validation) and the cloud database layer (PostgreSQL RLS policies and atomic server timestamps).
+Dibangun dengan arsitektur **Aplikasi Tunggal Terpadu (Single Unified Application)**, GeoSync memanfaatkan satu basis kode Flutter terkoordinasi yang secara dinamis mengubah antarmuka antara dasbor manajemen eksekutif (HRD) dan portal absensi karyawan berdasarkan hak peran (role) pengguna. Sistem ini memberlakukan standar keamanan berlapis tinggi, memadukan penguncian identitas perangkat seluler (Hardware Device UUID Binding), verifikasi batasan geografi GPS (Geofencing), dan aturan kriptografi Row-Level Security (RLS) untuk menghapus praktik kecurangan absensi seperti titip absen (*buddy punching*) maupun pemalsuan lokasi (*mock GPS*).
 
 ---
 
-## 3. System Capabilities & Features
+## 2. Filosofi Arsitektur Utama
 
-### For Employees
-- **Universal Authentication & Device Binding**: Secure NIK and password login. The initial login locks the employee's account to the physical hardware device UUID, automatically blocking unauthorized subsequent logins from foreign devices.
-- **Precision Geofencing Check-In & Check-Out**: Verifies user GPS coordinates against designated corporate branch perimeters using spatial distance calculations before permitting attendance submissions.
-- **Liveness Selfie Capture**: Requires live photograph capture during check-in and check-out to verify real-time physical presence.
-- **Attendance & Leave Management**: Interactive portal for real-time leave requests, remaining leave balance tracking, and personal historical attendance review.
-
-### For Administrators (HR / Executive)
-- **Executive Analytics Dashboard**: High-level real-time overview of active workforce attendance, punctuality ratios, and immediate system notifications.
-- **Secure Employee Provisioning**: Enroll new staff members and generate administrative credentials via isolated cloud runtime functions without triggering self-logout bugs.
-- **Dynamic Branch Work Hour Configuration**: Configure localized operating schedules per office branch, including attendance opening hours, on-time cutoffs, and customizable tardiness tolerance thresholds.
-- **One-Click Payroll Report Generation**: Automated aggregation and export of verified corporate attendance records into formatted spreadsheet reports for payroll processing.
+GeoSync beroperasi di atas tiga pilar desain mendasar:
+1. **Sistem Dua Peran dalam Satu Aplikasi**: Satu aplikasi melayani Karyawan reguler maupun Administrator Eksekutif (HRD). Pemetaan navigasi dan tampilan antarmuka diatur secara otomatis melalui verifikasi token JWT dan peran pada tabel relasional.
+2. **Tanpa Pendaftaran Publik**: Untuk mencegah akses liar, registrasi akun publik dinaikan (dinonaktifkan). Akun karyawan hanya dapat didaftarkan oleh Administrator yang sah melalui eksekusi server awam terisolasi (Edge Function) tanpa memproses pengeluaran (logout) pada sesi aplikasi sang Administrator itu sendiri.
+3. **Pertahanan Keamanan Berlapis**: Penindakan anti-curang berjalan serempak di sisi klien (pemeriksaan Hardware UUID pada penyimpanan terenkripsi dan deteksi aplikasi pemalsu GPS) serta di sisi database cloud (kebijakan PostgreSQL RLS dan stempel waktu atomatik dari server).
 
 ---
 
-## 4. Technology Stack
+## 3. Fitur & Kemampuan Sistem
 
-| Layer | Technology | Purpose |
+### Untuk Karyawan
+- **Autentikasi Universal & Penguncian Perangkat (Device Binding)**: Masuk menggunakan kombinasi NIK dan Kata Sandi resmi dari HRD. Login perdana otomatis mengunci akun karyawan pada kode UUID perangkat seluler, menolak seketika segala percobaan masuk pada perangkat asing yang berbeda.
+- **Absensi Presisi Berbasis Geofencing**: Memverifikasi koordinat GPS ponsel karyawan terhadap batasan radius kantor cabang menggunakan komputasi jarak spasial sebelum mengizinkan transmisi absensi.
+- **Verifikasi Liveness Selfie**: Mewajibkan pengambilan foto potret langsung melalui kamera pada saat absensi masuk maupun pulang untuk meyakinkan kehadiran fisik di lapangan.
+- **Portal Pengajuan Cuti & Rekonsiliasi**: Fasilitas mandiri untuk pengajuan izin cuti, pemantauan sisa kuota hari cuti tahunan, serta log riwayat absensi pribadi.
+
+### Untuk Administrator (HRD / Eksekutif)
+- **Dasbor Analitik Eksekutif**: Rangkuman pemantauan kehadiran tenaga kerja secara langsung (*real-time*), statistik tingkat kedisiplinan ketepatan waktu, dan pengingat keputusan persetujuan.
+- **Pendaftaran Karyawan Terenkripsi**: Pembuatan kredensial staf dan akun pengelola secara aman menggunakan fungsi eksekusi cloud Deno/TypeScript tanpa celah eror *self-logout*.
+- **Konfigurasi Jam Kerja Dinamis per Cabang**: Penetapan jam kerja yang disesuaikan untuk masing-masing kantor cabang, meliputi batas pembukaan absensi jam masuk, tenggang toleransi keterlambatan (dalam menit), dan jam absensi pulang.
+- **Ekspor Laporan Payroll Sepenuhnya Otomatis**: Pembuatan dan penyusun lembar kerja Excel (XLSX) laporan absensi perusahaan dalam satu klik untuk pemrosesan gaji HRD.
+
+---
+
+## 4. Stack Teknologi
+
+| Lapisan | Teknologi | Kegunaan |
 | :--- | :--- | :--- |
-| **Mobile Application** | Flutter & Dart | Cross-platform client targeting Android & iOS |
-| **State Management** | Flutter Riverpod (v2+) | Reactive application state and lifecycle control |
-| **Navigation & Routing** | GoRouter | Role-based declarative navigation and protection guards |
-| **User Interface** | Vanilla Material 3 + Glassmorphic Tokens | Enterprise dark-mode UI with high visual hierarchy |
-| **Database & API** | Supabase (PostgreSQL) | Relational database, instant PostgREST API, and storage |
-| **Security Layer** | PostgreSQL RLS & Crypt | Server-side execution rules and password hashing |
-| **Server-Side Runtime** | Deno & TypeScript | Cloud-isolated Supabase Edge Functions for admin tasks |
+| **Aplikasi Klien Mobile** | Flutter & Dart | Aplikasi lintas platform performa tinggi untuk Android & iOS |
+| **Manajemen State** | Flutter Riverpod (v2+) | Pengatur aliran data reaktif dan siklus hidup komponen |
+| **Navigasi & Perutean** | GoRouter | Sistem navigasi deklaratif berbasis peran dan proteksi halaman |
+| **Antarmuka Pengguna** | Vanilla Material 3 + Token Glassmorphic | Tema eksekutif mode gelap dengan kontras visual tinggi |
+| **Database & API Cloud** | Supabase (PostgreSQL) | Basis data relasional berskala tinggi dan API PostgREST instan |
+| **Lapisan Keamanan** | PostgreSQL RLS & Crypt | Aturan enkripsi dan pembatasan akses data dari server |
+| **Runtime Backend** | Deno & TypeScript | Supabase Edge Functions untuk isolasi proses administrasi |
 
 ---
 
-## 5. Repository Structure
+## 5. Struktur Direktori Repositori
 
 ```text
 GeoSync/
 ├── backend/
-│   ├── 001_initial_schema.sql         # Relational database schema, ENUMs, indices, and RLS rules
+│   ├── 001_initial_schema.sql         # Skema relasional database, tabel ENUM, indeks, dan aturan RLS
 │   └── supabase/
 │       └── functions/
-│           └── create-employee/       # Deno/TS Edge Function for safe admin account enrollment
+│           └── create-employee/       # Kode Deno/TS Edge Function untuk pendaftaran karyawan oleh Admin
 ├── docs/
-│   ├── PRD.md                         # Product Requirement Document and core architecture rules
-│   ├── architecture.md                # Detailed technical diagrams and component workflows
-│   ├── database.md                    # Data dictionary, relationships, and SQL migration logs
-│   ├── design-system.md               # Visual design tokens, color palette, and component specs
-│   └── tasks/                         # Modular feature execution task tracking
-└── mobile/                            # Flutter mobile application codebase
+│   ├── PRD.md                         # Dokumen Persyaratan Produk (PRD) dan acuan final
+│   ├── architecture.md                # Diagram arsitektur teknis dan alur komunikasi sistem
+│   ├── database.md                    # Kamus data, relasi antar tabel, dan catatan migrasi SQL
+│   ├── design-system.md               # Token desain visual, palet warna korporat, dan spesifikasi komponen
+│   └── tasks/                         # Buku catatan pemecahan modul dan pengembangan berjenjang
+└── mobile/                            # Kode sumber aplikasi mobile Flutter
     ├── lib/
-    │   ├── core/                      # Constants, network wrapper, theme, and utility modules
-    │   ├── features/                  # Feature-first modular layers (Auth, Attendance, Admin)
-    │   └── navigation/                # GoRouter configurations and automated role routing
-    └── pubspec.yaml                   # Dependency manifests and version locks
+    │   ├── core/                      # Modul konstan, wrapper jaringan Supabase, tema, dan utilitas dasar
+    │   ├── features/                  # Modul fitur mandiri (Auth, Attendance, Admin)
+    │   └── navigation/                # Konfigurasi GoRouter dan pengawas rute per peran (Router Guard)
+    └── pubspec.yaml                   # Daftar dependensi resmi dan spesifikasi paket versi
 ```
 
 ---
 
-## 6. Setup & Installation Guide
+## 6. Panduan Instalasi & Konfigurasi
 
-### Prerequisites
-- **Flutter SDK**: Version 3.24 or above with standard Android/iOS development tooling installed.
-- **Windows Systems**: Developer Mode must be enabled in Windows Settings to allow symbolic link support for native Flutter plugins and security modules.
-- **Supabase Account & CLI**: Required for local testing or cloud database staging deployments.
+### Persyaratan Sistem (Prerequisites)
+- **Flutter SDK**: Versi 3.24 atau lebih tinggi beserta kelengkapan compiler Android/iOS.
+- **Sistem Windows**: Fitur Developer Mode pada pengaturan Windows wajib diaktifkan (ON) guna mendukung pembuatan *symbolic links* untuk plugin keamanan dan pustaka native.
+- **Akun & CLI Supabase**: Dibutuhkan untuk pengujian lokal atau penghubungan instans cloud database.
 
-### Step 1: Database Migration
-1. Log into your Supabase project console and open the SQL Editor.
-2. Execute the entire codeblock provided in `backend/001_initial_schema.sql` to generate the foundational tables (`departments`, `office_locations`, `employees`, `work_hour_settings`, `attendance`, `leave_requests`, and `audit_logs`).
-3. Ensure that Row-Level Security (RLS) policies remain active across all tables as specified in the schema file.
+### Langkah 1: Migrasi Database (Supabase)
+1. Masuk ke konsol dasbor proyek Supabase Anda dan buka menu SQL Editor.
+2. Jalankan seluruh perintah SQL dari file `backend/001_initial_schema.sql` untuk menciptakan fondasi tabel (`departments`, `office_locations`, `employees`, `work_hour_settings`, `attendance`, `leave_requests`, dan `audit_logs`).
+3. Pastikan proteksi Row-Level Security (RLS) pada seluruh tabel aktif sesuai instruksi pada skema database.
 
-### Step 2: Environment Security & Configuration
-Do not commit raw API credentials or cloud project URLs into public git repositories. To set up your environment locally:
+### Langkah 2: Keamanan Variabel Lingkungan (Environment Variables)
+Demi menjaga keamanan siber perusahaan, dilarang menyertakan atau menyimpan kunci API rahasia serta tautan database publik ke dalam riwayat repositori git secara permanen. Untuk mengintegrasikannya secara aman:
 
-1. Locate the configuration file within the mobile codebase at `mobile/lib/core/constants/app_constants.dart` (or create your secure local target).
-2. Assign your Supabase project endpoints using environment parameters or build configurations without hardcoding sensitive strings into version-controlled files:
+1. Buka file konfigurasi internal aplikasi mobile pada rute `mobile/lib/core/constants/app_constants.dart` atau gunakan skema masukan environment variable sewaktu proses kompilasi.
+2. Rekomendasi penerapan injeksi rahasia tanpa menyimpan variabel di sistem kode:
 
 ```dart
 class AppConstants {
@@ -107,52 +107,53 @@ class AppConstants {
 }
 ```
 
-When building or executing the Flutter application, provide these variables securely via command line parameters:
+Saat melakukan pengujian atau pencetakan rilis (build), masukkan variabel secara aman melalui parameter terminal:
 ```bash
-flutter run --dart-define=SUPABASE_URL=https://myproject.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=my_publishable_token_here
+flutter run --dart-define=SUPABASE_URL=https://myproject.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=token_publishable_anda_di_sini
 ```
 
-### Step 3: Edge Function Deployment
-To enable secure Administrative provisioning without self-logout bugs, deploy the Deno Edge Function to your cloud project:
+### Langkah 3: Penerapan Backend Edge Function
+Agar fitur registrasi karyawan baru oleh Admin berfungsi secara aman dari cloud tanpa menggangu sesi login pemanggilnya, unggah Edge Function ke server Supabase Anda:
 
 ```bash
 cd backend
 supabase functions deploy create-employee --project-ref YOUR_PROJECT_REFERENCE_ID
 ```
-Ensure your server environment has `SUPABASE_SERVICE_ROLE_KEY` defined natively in your cloud Supabase dashboard under Edge Function configurations. Never expose the service role key within the Flutter application client.
 
-### Step 4: Building & Running the Mobile Application
-1. Navigate into the mobile root directory:
+Pastikan variabel pengaman `SUPABASE_SERVICE_ROLE_KEY` telah diotorisasi secara tertutup di dalam pengaturan rahasia cloud Supabase Anda. Dilarang keras melewatkan Service Role Key ke dalam kode antarmuka aplikasi Flutter.
+
+### Langkah 4: Kompilasi & Menjalankan Aplikasi Mobile
+1. Buka direktori root mobile:
    ```bash
    cd mobile
    ```
-2. Download and synchronize required packages:
+2. Sinkronkan dan unduh pustaka dependensi proyek:
    ```bash
    flutter pub get
    ```
-3. Run formal syntax and lint verification:
+3. Lakukan verifikasi linter kode resmi guna kepantasan standar perakitan:
    ```bash
    flutter analyze
    ```
-4. Launch the application on an active device or emulator:
+4. Jalankan aplikasi pada perangkat seluler fisik atau emulator aktif:
    ```bash
    flutter run
    ```
 
 ---
 
-## 7. Development Standards & Commit Philosophy
+## 7. Filosofi Commit & Standar Pengembangan
 
-This project strictly adheres to atomic development steps and **Semantic Commit Formatting**. Every commit must target a discrete functional change and begin with an standard prefix:
+Proyek ini dipelihara secara teratur dengan alur perbaikan atomik menggunakan format **Semantic Commit**. Setiap perubahan harus menyentuh ruang lingkup tertentu dan didahului oleh awalan penjelas formal:
 
-- `feat:` for brand new capabilities, screens, or architectural modules.
-- `fix:` for functional bug remediations or logic corrections.
-- `refactor:` for code structural improvements without modifying runtime behaviors.
-- `docs:` for architectural documentation, task progress tracking, or inline comments.
-- `chore:` for dependency upgrades, linter adjustments, or repository maintenance.
+- `feat:` untuk penambahan fitur, modul layar, atau komponen kemampuan baru.
+- `fix:` untuk koreksi cacat logika, pembetulan bug, atau pemulihan stabilitas.
+- `refactor:` untuk peremajaan susunan kode tanpa mengubah penulisan keluaran fungsional.
+- `docs:` untuk dokumentasi sistem, pembaruan README, atau penandatanganan kemajuan tugas.
+- `chore:` untuk pemutakhiran versi paket dependensi, konfigurasi perkakas, atau pemeliharaan repositori.
 
 ---
 
-## 8. License & Property Notice
+## 8. Lisensi & Hak Kepemilikan
 
-GeoSync is proprietary software developed for enterprise corporate deployment. All rights regarding architecture, database designs, and implementation methodologies are reserved by the designated organization and project stakeholders.
+GeoSync merupakan perangkat lunak eksklusif berlisensi yang dibangun untuk kebutuhan manajemen operasional korporat. Seluruh hak atas arsitektur sistem, skema relasi data, serta kekayaan intelektual pengembangan melekat mutlak pada instansi atau pihak pemilik proyek yang berwenang.
