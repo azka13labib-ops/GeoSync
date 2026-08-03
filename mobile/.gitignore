@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Security and Secret Isolations (Do NOT remove)
+lib/core/constants/supabase_secrets.dart
+*.env
+.env*
+!*.example.dart
+!*.example.env
+
