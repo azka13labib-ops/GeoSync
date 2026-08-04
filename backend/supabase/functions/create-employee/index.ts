@@ -12,7 +12,6 @@ const corsHeaders = {
 };
 
 serve(async (req: Request) => {
-  // 1. Handle CORS Preflight request for mobile/client
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -26,7 +25,6 @@ serve(async (req: Request) => {
       throw new Error('Server environmental variables missing.');
     }
 
-    // 2. Klien Reguler (Menggunakan Token Auth Admin dari Header Request)
     const authorizationHeader = req.headers.get('Authorization');
     if (!authorizationHeader) {
       return new Response(JSON.stringify({ error: 'Missing Authorization header' }), {
