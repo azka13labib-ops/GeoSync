@@ -21,6 +21,19 @@ class AppTheme {
   static const Color mintAlertBg = Color(0xFFE4F3EF);
   static const Color mintAlertText = Color(0xFF0F6058);
 
+  // Active Bottom Nav Pill & HRD Accent Tokens
+  static const Color mintNavPill = Color(0xFF80ECD6); // Bright Cyan-Mint Pill for active tab
+  static const Color tealButton = Color(0xFF006C62); // Deep Teal Primary Button
+  static const Color darkNavyHeader = Color(0xFF0A2540); // Rich Corporate Navy
+
+  // Status Badges (Hadir/Aktif/Terlambat/Sakit)
+  static const Color badgeMintBg = Color(0xFFE2F9F4);
+  static const Color badgeMintText = Color(0xFF0D7B6D);
+  static const Color badgeRedBg = Color(0xFFFDEDED);
+  static const Color badgeRedText = Color(0xFFD32F2F);
+  static const Color badgeGreyBg = Color(0xFFF1F5F9);
+  static const Color badgeGreyText = Color(0xFF64748B);
+
   // Card Box Shadow for Modern Corporate elevation
   static List<BoxShadow> softCardShadow = [
     BoxShadow(

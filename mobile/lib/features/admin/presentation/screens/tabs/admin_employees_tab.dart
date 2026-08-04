@@ -1,0 +1,410 @@
+// ====================================================================
+// GEOSYNC - ADMIN EMPLOYEES DIRECTORY TAB (PORTAL HRD TAB 2)
+// ====================================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../../core/theme/app_theme.dart';
+
+class EmployeeItem {
+  final String name;
+  final String nik;
+  final String department;
+  final bool isActive;
+  final Color avatarColor;
+
+  EmployeeItem({
+    required this.name,
+    required this.nik,
+    required this.department,
+    required this.isActive,
+    required this.avatarColor,
+  });
+}
+
+class AdminEmployeesTab extends ConsumerStatefulWidget {
+  const AdminEmployeesTab({super.key});
+
+  @override
+  ConsumerState<AdminEmployeesTab> createState() => _AdminEmployeesTabState();
+}
+
+class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
+  String _selectedFilter = 'Semua';
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  final List<EmployeeItem> _employees = [
+    EmployeeItem(name: 'Budi Santoso', nik: '2023001', department: 'IT Support', isActive: true, avatarColor: const Color(0xFF1B4E6B)),
+    EmployeeItem(name: 'Siti Aminah', nik: '2023002', department: 'HR Executive', isActive: true, avatarColor: const Color(0xFF8DA3E8)),
+    EmployeeItem(name: 'Rina Melati', nik: '2022045', department: 'Finance Officer', isActive: false, avatarColor: const Color(0xFF6A7E8B)),
+    EmployeeItem(name: 'Andi Wijaya', nik: '2023004', department: 'Operations Lead', isActive: true, avatarColor: const Color(0xFF90BBE0)),
+    EmployeeItem(name: 'Super Admin HRD', nik: '11111', department: 'Executive Board', isActive: true, avatarColor: AppTheme.primaryColor),
+    EmployeeItem(name: 'Budi (Karyawan Test)', nik: '12345', department: 'Field Staff', isActive: true, avatarColor: AppTheme.secondaryColor),
+  ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _showAddEmployeeDialog() {
+    final nameCtrl = TextEditingController();
+    final nikCtrl = TextEditingController();
+    final passwordCtrl = TextEditingController(text: 'geosync123');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 24,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.person_add_alt_1_rounded, color: AppTheme.tealButton, size: 28),
+                const SizedBox(width: 12),
+                const Text('Tambah Karyawan Baru', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTheme.primaryColor)),
+                const Spacer(),
+                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text('Akun akan langsung diverifikasi dan terikat dengan kebijakan sistem.', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13.5)),
+            const SizedBox(height: 20),
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Nama Lengkap Karyawan', hintText: 'Contoh: Ahmad Sulaiman'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: nikCtrl,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'NIK / Corporate ID', hintText: 'Contoh: 2024001'),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordCtrl,
+              decoration: const InputDecoration(labelText: 'Password Default', helperText: 'Karyawan dapat mengganti sandi setelah login.'),
+            ),
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.tealButton),
+                icon: const Icon(Icons.check_circle_outline_rounded),
+                label: const Text('Simpan & Aktifkan Akun', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                onPressed: () {
+                  if (nameCtrl.text.isNotEmpty && nikCtrl.text.isNotEmpty) {
+                    setState(() {
+                      _employees.insert(0, EmployeeItem(
+                        name: nameCtrl.text.trim(),
+                        nik: nikCtrl.text.trim(),
+                        department: 'Staff Baru',
+                        isActive: true,
+                        avatarColor: AppTheme.tealButton,
+                      ));
+                    });
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Akun Karyawan "${nameCtrl.text}" (NIK: ${nikCtrl.text}) berhasil ditambahkan ke database!'),
+                        backgroundColor: AppTheme.secondaryColor,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEmployeeOptions(EmployeeItem emp) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.phonelink_erase_rounded, color: AppTheme.primaryColor),
+              title: const Text('Reset Device UUID (Anti-Titip Absen)', style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: const Text('Izinkan karyawan mendaftarkan HP baru'),
+              onTap: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Device UUID untuk ${emp.name} (NIK: ${emp.nik}) berhasil di-reset!'),
+                    backgroundColor: AppTheme.primaryColor,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit_outlined, color: AppTheme.secondaryColor),
+              title: const Text('Edit Profil Karyawan', style: TextStyle(fontWeight: FontWeight.w600)),
+              onTap: () => Navigator.pop(ctx),
+            ),
+            ListTile(
+              leading: Icon(emp.isActive ? Icons.block_flipped : Icons.check_circle_outline, color: emp.isActive ? AppTheme.errorColor : AppTheme.secondaryColor),
+              title: Text(emp.isActive ? 'Nonaktifkan Akun' : 'Aktifkan Kembali Akun', style: TextStyle(fontWeight: FontWeight.w600, color: emp.isActive ? AppTheme.errorColor : AppTheme.secondaryColor)),
+              onTap: () {
+                setState(() {
+                  final idx = _employees.indexOf(emp);
+                  if (idx != -1) {
+                    _employees[idx] = EmployeeItem(
+                      name: emp.name,
+                      nik: emp.nik,
+                      department: emp.department,
+                      isActive: !emp.isActive,
+                      avatarColor: emp.avatarColor,
+                    );
+                  }
+                });
+                Navigator.pop(ctx);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Filter list
+    final filteredList = _employees.where((emp) {
+      final matchesQuery = emp.name.toLowerCase().contains(_searchQuery.toLowerCase()) || emp.nik.contains(_searchQuery);
+      if (!matchesQuery) return false;
+      if (_selectedFilter == 'Aktif') return emp.isActive;
+      if (_selectedFilter == 'Nonaktif') return !emp.isActive;
+      return true;
+    }).toList();
+
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Top Header & Search Area
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppTheme.borderLight, width: 1),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            'assets/images/logo_icon.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => const Icon(Icons.language_rounded, color: AppTheme.primaryColor, size: 24),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'GeoSync',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.primaryColor),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.notifications_outlined, color: AppTheme.textPrimary, size: 26),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Direktori Karyawan',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.primaryColor),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Search Input
+                  TextField(
+                    controller: _searchController,
+                    onChanged: (val) => setState(() => _searchQuery = val),
+                    decoration: InputDecoration(
+                      hintText: 'Cari nama atau NIK...',
+                      prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.textSecondary),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppTheme.borderLight)),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Button Tambah Karyawan
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _showAddEmployeeDialog,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.tealButton,
+                        foregroundColor: Colors.white,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add, size: 24),
+                          SizedBox(width: 8),
+                          Text('TAMBAH KARYAWAN', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Filter Pills Row
+                  Row(
+                    children: [
+                      _buildFilterPill('Semua'),
+                      const SizedBox(width: 10),
+                      _buildFilterPill('Aktif'),
+                      const SizedBox(width: 10),
+                      _buildFilterPill('Nonaktif'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Employee Cards List
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                itemCount: filteredList.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final emp = filteredList[index];
+                  return Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppTheme.borderLight, width: 1.2),
+                      boxShadow: AppTheme.softCardShadow,
+                    ),
+                    child: Row(
+                      children: [
+                        // Avatar Initial or photo
+                        CircleAvatar(
+                          radius: 28,
+                          backgroundColor: emp.avatarColor,
+                          child: Text(
+                            emp.name[0].toUpperCase(),
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+
+                        // Name & NIK
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                emp.name,
+                                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'NIK: ${emp.nik}  •  ${emp.department}',
+                                style: const TextStyle(fontSize: 13.5, color: AppTheme.textSecondary),
+                              ),
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: emp.isActive ? AppTheme.badgeMintBg : AppTheme.badgeGreyBg,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  emp.isActive ? 'Aktif' : 'Nonaktif',
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: emp.isActive ? AppTheme.badgeMintText : AppTheme.badgeGreyText,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // 3 dots menu button
+                        IconButton(
+                          icon: const Icon(Icons.more_vert_rounded, color: AppTheme.textSecondary),
+                          onPressed: () => _showEmployeeOptions(emp),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterPill(String title) {
+    final isSelected = _selectedFilter == title;
+    return InkWell(
+      onTap: () => setState(() => _selectedFilter = title),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 9),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primaryColor : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppTheme.primaryColor : AppTheme.borderLight,
+            width: 1.2,
+          ),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 13.5,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+            color: isSelected ? Colors.white : AppTheme.textPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+}

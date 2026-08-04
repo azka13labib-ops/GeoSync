@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../features/admin/presentation/screens/admin_dashboard_screen.dart';
+import '../features/admin/presentation/screens/admin_main_screen.dart';
 import '../features/attendance/presentation/screens/employee_home_screen.dart';
 import '../features/auth/domain/employee_model.dart';
 import '../features/auth/presentation/controllers/auth_controller.dart';
@@ -57,7 +57,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/dashboard',
         name: 'admin-dashboard',
-        builder: (context, state) => const AdminDashboardScreen(),
+        builder: (context, state) => const AdminMainScreen(),
       ),
     ],
   );
