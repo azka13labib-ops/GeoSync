@@ -5,6 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_theme.dart';
+import '../../../../../core/widgets/app_toast.dart';
+import '../../widgets/admin_app_bar.dart';
 
 class LeaveRequestItem {
   final String id;
@@ -91,12 +93,11 @@ class _AdminLeaveTabState extends ConsumerState<AdminLeaveTab> {
     setState(() {
       item.status = newStatus;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Pengajuan cuti atas nama ${item.employeeName} berstatus: $newStatus!'),
-        backgroundColor: newStatus == 'Disetujui' ? AppTheme.secondaryColor : AppTheme.errorColor,
-        behavior: SnackBarBehavior.floating,
-      ),
+    AppToast.show(
+      context,
+      title: newStatus == 'Disetujui' ? 'Cuti Disetujui' : 'Cuti Ditolak',
+      message: 'Status pengajuan cuti ${item.employeeName} telah diubah menjadi $newStatus.',
+      type: newStatus == 'Disetujui' ? ToastType.success : ToastType.error,
     );
   }
 
@@ -116,32 +117,8 @@ class _AdminLeaveTabState extends ConsumerState<AdminLeaveTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Logo & Bell
-                  Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppTheme.borderLight, width: 1),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            'assets/images/logo_icon.png',
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Icon(Icons.language_rounded, color: AppTheme.primaryColor, size: 24),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text('GeoSync', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.primaryColor)),
-                      const Spacer(),
-                      IconButton(icon: const Icon(Icons.notifications_outlined, color: AppTheme.textPrimary, size: 26), onPressed: () {}),
-                    ],
-                  ),
+                  // Shared Header
+                  const AdminAppBar(notificationCount: 3),
                   const SizedBox(height: 20),
                   const Text('Persetujuan Cuti', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.primaryColor)),
                   const SizedBox(height: 16),

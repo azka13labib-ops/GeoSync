@@ -1,5 +1,5 @@
 // ====================================================================
-// GEOSYNC - ADMIN MAIN PORTAL CONTAINER (CUSTOM BOTTOM NAV WITH MINT PILL)
+// GEOSYNC - ADMIN MAIN PORTAL CONTAINER (SLIDING MINT NAVBAR PILL)
 // ====================================================================
 
 import 'package:flutter/material.dart';
@@ -41,7 +41,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         children: pages,
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -53,61 +53,66 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           ],
         ),
         child: SafeArea(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavPill(
-                index: 0,
-                icon: Icons.grid_view_rounded,
-                label: 'Dasbor',
-              ),
-              _buildNavPill(
-                index: 1,
-                icon: Icons.people_alt_rounded,
-                label: 'Data Karyawan',
-              ),
-              _buildNavPill(
-                index: 2,
-                icon: Icons.assignment_turned_in_rounded,
-                label: 'Cuti',
-              ),
-              _buildNavPill(
-                index: 3,
-                icon: Icons.download_rounded,
-                label: 'Export',
-              ),
-              _buildNavPill(
-                index: 4,
-                icon: Icons.settings_rounded,
-                label: 'Settings',
-              ),
-            ],
+          top: false,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final itemWidth = constraints.maxWidth / 5;
+              const pillHeight = 54.0;
+
+              return SizedBox(
+                height: pillHeight,
+                child: Stack(
+                  alignment: Alignment.centerLeft,
+                  children: [
+                    // LAYER 1: KOTAK HIJAU MINT YANG BERGESER MELUNCUR (SLIDING PILL)
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOutCubic,
+                      left: _selectedIndex * itemWidth,
+                      top: 0,
+                      bottom: 0,
+                      width: itemWidth,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppTheme.mintNavPill,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+
+                    // LAYER 2: DERETAN IKON & TEKS MENU
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _buildNavItem(0, Icons.grid_view_rounded, 'Dasbor'),
+                        _buildNavItem(1, Icons.people_alt_rounded, 'Data Karyawan'),
+                        _buildNavItem(2, Icons.assignment_turned_in_rounded, 'Cuti'),
+                        _buildNavItem(3, Icons.download_rounded, 'Export'),
+                        _buildNavItem(4, Icons.settings_rounded, 'Settings'),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildNavPill({
-    required int index,
-    required IconData icon,
-    required String label,
-  }) {
+  Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = _selectedIndex == index;
 
-    return GestureDetector(
-      onTap: () => _switchTab(index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.mintNavPill : Colors.transparent,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Row(
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _switchTab(index),
+        behavior: HitTestBehavior.opaque,
+        child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
@@ -115,13 +120,20 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
               size: 24,
             ),
             if (isSelected) ...[
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.tealButton,
+              const SizedBox(height: 2),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.tealButton,
+                    ),
+                  ),
                 ),
               ),
             ],

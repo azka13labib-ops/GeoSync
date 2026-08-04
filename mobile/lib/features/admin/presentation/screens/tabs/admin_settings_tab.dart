@@ -5,7 +5,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_theme.dart';
+import '../../../../../core/widgets/app_toast.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
+import '../../widgets/admin_app_bar.dart';
 
 class AdminSettingsTab extends ConsumerStatefulWidget {
   const AdminSettingsTab({super.key});
@@ -15,19 +17,10 @@ class AdminSettingsTab extends ConsumerStatefulWidget {
 }
 
 class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
-  late TextEditingController _nameController;
   final TextEditingController _leaveDefaultController = TextEditingController(text: '12');
 
   @override
-  void initState() {
-    super.initState();
-    final user = ref.read(authControllerProvider).user;
-    _nameController = TextEditingController(text: user?.fullName ?? 'Sarah Jenkins');
-  }
-
-  @override
   void dispose() {
-    _nameController.dispose();
     _leaveDefaultController.dispose();
     super.dispose();
   }
@@ -78,8 +71,11 @@ class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
                 style: ElevatedButton.styleFrom(backgroundColor: AppTheme.tealButton),
                 onPressed: () {
                   Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Lokasi "${nameCtrl.text}" dengan radius ${radiusCtrl.text}m berhasil ditambahkan!'), backgroundColor: AppTheme.secondaryColor),
+                  AppToast.show(
+                    context,
+                    title: 'Lokasi Ditambahkan',
+                    message: 'Titik kantor "${nameCtrl.text}" dengan radius ${radiusCtrl.text}m telah aktif.',
+                    type: ToastType.success,
                   );
                 },
                 child: const Text('Simpan Konfigurasi Lokasi', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
@@ -126,32 +122,8 @@ class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
-              Row(
-                children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppTheme.borderLight, width: 1),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        'assets/images/logo_icon.png',
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(Icons.language_rounded, color: AppTheme.primaryColor, size: 24),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text('GeoSync', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.primaryColor)),
-                  const Spacer(),
-                  IconButton(icon: const Icon(Icons.notifications_outlined, color: AppTheme.textPrimary, size: 26), onPressed: () {}),
-                ],
-              ),
+              // Shared Header
+              const AdminAppBar(notificationCount: 3),
               const SizedBox(height: 24),
 
               // CARD 1: Lokasi Kantor & Geofencing
@@ -260,7 +232,12 @@ class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
                     _buildDashedButton(
                       label: 'Tambah Departemen',
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Membuka modal Master Departemen...'), behavior: SnackBarBehavior.floating));
+                        AppToast.show(
+                          context,
+                          title: 'Master Departemen',
+                          message: 'Fitur pengelolaan struktur departemen baru siap digunakan.',
+                          type: ToastType.info,
+                        );
                       },
                     ),
                   ],
@@ -329,18 +306,6 @@ class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
                     ),
                     const SizedBox(height: 22),
 
-                    // Admin Name
-                    const Text('Admin Name', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
                     // Button Ganti Password
                     SizedBox(
                       width: double.infinity,
@@ -353,7 +318,12 @@ class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         ),
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tautan ganti password telah dikirim ke email admin Anda.'), behavior: SnackBarBehavior.floating));
+                          AppToast.show(
+                            context,
+                            title: 'Email Terkirim',
+                            message: 'Tautan pengaturan ulang kata sandi telah dikirim ke email administrator Anda.',
+                            type: ToastType.success,
+                          );
                         },
                         child: const Text('Ganti Password', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                       ),

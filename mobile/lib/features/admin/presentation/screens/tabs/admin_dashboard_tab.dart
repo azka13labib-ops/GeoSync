@@ -5,15 +5,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_theme.dart';
+import '../../../../../core/services/notification_service.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
+import '../../widgets/admin_app_bar.dart';
+import '../admin_live_attendance_screen.dart';
 
-class AdminDashboardTab extends ConsumerWidget {
+class AdminDashboardTab extends ConsumerStatefulWidget {
   final VoidCallback onNavigateToLeave;
 
   const AdminDashboardTab({super.key, required this.onNavigateToLeave});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminDashboardTab> createState() => _AdminDashboardTabState();
+}
+
+class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
+  @override
+  void initState() {
+    super.initState();
+    // Kirim notifikasi HP otomatis saat portal HRD pertama kali dibuka
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await NotificationService.instance.showPendingLeaveNotification(count: 3);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authControllerProvider).user;
 
     return Scaffold(
@@ -24,69 +41,8 @@ class AdminDashboardTab extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Bar Header
-              Row(
-                children: [
-                  // Logo Icon & Brand Text
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppTheme.borderLight, width: 1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withValues(alpha: 0.06),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        'assets/images/logo_icon.png',
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(Icons.language_rounded, color: AppTheme.primaryColor, size: 24),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'GeoSync',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.primaryColor,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                  const Spacer(),
-                  // Notification Bell
-                  IconButton(
-                    icon: const Icon(Icons.notifications_outlined, color: AppTheme.textPrimary, size: 26),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Tidak ada pemberitahuan sistem baru.'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 4),
-                  // Admin Avatar Circle
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: AppTheme.primaryColor,
-                    child: Text(
-                      (user?.fullName ?? 'A')[0].toUpperCase(),
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                  ),
-                ],
-              ),
+              // Shared Header
+              const AdminAppBar(notificationCount: 3),
               const SizedBox(height: 24),
 
               // Greeting & Subtitle
@@ -102,44 +58,6 @@ class AdminDashboardTab extends ConsumerWidget {
               const Text(
                 'Ringkasan aktivitas hari ini.',
                 style: TextStyle(fontSize: 14.5, color: AppTheme.textSecondary, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 20),
-
-              // Mint Alert Banner for Pending Leave Requests
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                decoration: BoxDecoration(
-                  color: AppTheme.mintAlertBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.mintAlertText.withValues(alpha: 0.18), width: 1.2),
-                ),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        '3 pengajuan cuti menunggu\nreview',
-                        style: TextStyle(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.mintAlertText,
-                          height: 1.35,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      onPressed: onNavigateToLeave,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.tealButton,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Lihat', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                    ),
-                  ],
-                ),
               ),
               const SizedBox(height: 20),
 
@@ -203,10 +121,10 @@ class AdminDashboardTab extends ConsumerWidget {
                   ),
                   InkWell(
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Menampilkan seluruh 1,195 catatan kehadiran hari ini.'),
-                          behavior: SnackBarBehavior.floating,
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AdminLiveAttendanceScreen(),
                         ),
                       );
                     },

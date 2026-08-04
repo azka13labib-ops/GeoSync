@@ -5,6 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_theme.dart';
+import '../../../../../core/widgets/app_toast.dart';
+import '../../widgets/admin_app_bar.dart';
 
 class ExportHistoryItem {
   final String filename;
@@ -50,12 +52,11 @@ class _AdminExportTabState extends ConsumerState<AdminExportTab> {
     });
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('File $newFile berhasil diunduh ke folder Downloads!'),
-          backgroundColor: AppTheme.secondaryColor,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.show(
+        context,
+        title: 'Ekspor Berhasil!',
+        message: 'File $newFile telah selesai diunduh dan tersedia di penyimpanan Anda.',
+        type: ToastType.success,
       );
     }
   }
@@ -70,32 +71,8 @@ class _AdminExportTabState extends ConsumerState<AdminExportTab> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
-              Row(
-                children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppTheme.borderLight, width: 1),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        'assets/images/logo_icon.png',
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(Icons.language_rounded, color: AppTheme.primaryColor, size: 24),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text('GeoSync', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.primaryColor)),
-                  const Spacer(),
-                  IconButton(icon: const Icon(Icons.notifications_outlined, color: AppTheme.textPrimary, size: 26), onPressed: () {}),
-                ],
-              ),
+              // Shared Header
+              const AdminAppBar(notificationCount: 3),
               const SizedBox(height: 24),
 
               // Titles

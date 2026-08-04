@@ -5,6 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_theme.dart';
+import '../../../../../core/widgets/app_toast.dart';
+import '../../widgets/admin_app_bar.dart';
 
 class EmployeeItem {
   final String name;
@@ -119,12 +121,11 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
                       ));
                     });
                     Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Akun Karyawan "${nameCtrl.text}" (NIK: ${nikCtrl.text}) berhasil ditambahkan ke database!'),
-                        backgroundColor: AppTheme.secondaryColor,
-                        behavior: SnackBarBehavior.floating,
-                      ),
+                    AppToast.show(
+                      context,
+                      title: 'Karyawan Ditambahkan',
+                      message: 'Akun "${nameCtrl.text}" (NIK: ${nikCtrl.text}) berhasil didaftarkan ke dalam database.',
+                      type: ToastType.success,
                     );
                   }
                 },
@@ -150,12 +151,11 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
               subtitle: const Text('Izinkan karyawan mendaftarkan HP baru'),
               onTap: () {
                 Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Device UUID untuk ${emp.name} (NIK: ${emp.nik}) berhasil di-reset!'),
-                    backgroundColor: AppTheme.primaryColor,
-                    behavior: SnackBarBehavior.floating,
-                  ),
+                AppToast.show(
+                  context,
+                  title: 'UUID Berhasil Direset',
+                  message: 'Device binding untuk ${emp.name} (NIK: ${emp.nik}) dilepas. Karyawan dapat login di perangkat baru.',
+                  type: ToastType.info,
                 );
               },
             ),
@@ -181,6 +181,12 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
                   }
                 });
                 Navigator.pop(ctx);
+                AppToast.show(
+                  context,
+                  title: emp.isActive ? 'Akun Dinonaktifkan' : 'Akun Diaktifkan Kembali',
+                  message: 'Status akses sistem untuk ${emp.name} telah diperbarui.',
+                  type: emp.isActive ? ToastType.error : ToastType.success,
+                );
               },
             ),
           ],
@@ -211,38 +217,8 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
-                  Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppTheme.borderLight, width: 1),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            'assets/images/logo_icon.png',
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Icon(Icons.language_rounded, color: AppTheme.primaryColor, size: 24),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'GeoSync',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.primaryColor),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.notifications_outlined, color: AppTheme.textPrimary, size: 26),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
+                  // Shared Header
+                  const AdminAppBar(notificationCount: 3),
                   const SizedBox(height: 20),
                   const Text(
                     'Direktori Karyawan',
