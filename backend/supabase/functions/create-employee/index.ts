@@ -72,8 +72,8 @@ serve(async (req: Request) => {
     }
 
     // Gunakan email sintetis berdasarkan NIK agar konsisten dengan standar Auth Supabase
-    // Contoh: 320123456789@geosync.corp
-    const syntheticEmail = `${nik}@geosync.corp`;
+    // Contoh: 320123456789@geosync.com
+    const syntheticEmail = `${nik}@geosync.com`;
     const targetRole = role === 'ADMIN' ? 'ADMIN' : 'EMPLOYEE';
 
     // 5. Daftarkan User baru menggunakan Admin Service Role (Tanpa logout sesi Admin)

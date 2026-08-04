@@ -59,8 +59,10 @@ class AuthRepository {
 
   /// Login Universal (Admin & Employee) menggunakan NIK dan Password
   Future<EmployeeModel> signInWithNik(String nik, String password) async {
-    // 1. Format email sintetis konsisten dengan backend: NIK@geosync.corp
-    final syntheticEmail = '$nik@geosync.corp';
+    // 1. Format email sintetis konsisten dengan backend: NIK@geosync.com
+    final syntheticEmail = '$nik@geosync.com';
+    // ignore: avoid_print
+    print('[GeoSync-DEBUG] Mencoba login dengan email: $syntheticEmail');
 
     try {
       final AuthResponse authRes = await _supabase.auth.signInWithPassword(
@@ -69,11 +71,15 @@ class AuthRepository {
       );
 
       final user = authRes.user;
+      // ignore: avoid_print
+      print('[GeoSync-DEBUG] Auth response user: ${user?.id}');
       if (user == null) {
         throw const AuthException('Kredensial tidak valid. Gagal mendapatkan sesi user.');
       }
 
       // 2. Tarik profil karyawan dari tabel public.employees
+      // ignore: avoid_print
+      print('[GeoSync-DEBUG] Mengambil profil employee dari DB...');
       final employeeData = await _supabase
           .from(AppConstants.tableEmployees)
           .select()
@@ -81,6 +87,8 @@ class AuthRepository {
           .single();
 
       var employee = EmployeeModel.fromJson(employeeData);
+      // ignore: avoid_print
+      print('[GeoSync-DEBUG] Employee ditemukan: ${employee.fullName} (${employee.role})');
 
       // 3. Verifikasi apakah akun dalam status Aktif
       if (!employee.isActive) {
@@ -90,6 +98,8 @@ class AuthRepository {
 
       // 4. JALANKAN MESIN DEVICE BINDING (Khusus untuk role EMPLOYEE maupun proteksi Admin)
       final currentDeviceUuid = await getDeviceUuid();
+      // ignore: avoid_print
+      print('[GeoSync-DEBUG] Device UUID: $currentDeviceUuid | DB device_id: ${employee.deviceId}');
 
       if (employee.deviceId == null || employee.deviceId!.isEmpty) {
         // Kasus 1: Login pertama kali -> Kunci akun ke perangkat saat ini
@@ -120,10 +130,18 @@ class AuthRepository {
         );
       }
 
+      // ignore: avoid_print
+      print('[GeoSync-DEBUG] Login BERHASIL untuk: ${employee.fullName}');
       return employee;
     } on AuthException catch (e) {
+      // ignore: avoid_print
+      print('[GeoSync-DEBUG] AuthException: ${e.message} | statusCode: ${e.statusCode}');
       throw Exception('Login Gagal: ${e.message}');
-    } catch (e) {
+    } catch (e, stack) {
+      // ignore: avoid_print
+      print('[GeoSync-DEBUG] Exception: $e');
+      // ignore: avoid_print
+      print('[GeoSync-DEBUG] StackTrace: $stack');
       throw Exception(e.toString().replaceAll('Exception: ', ''));
     }
   }
