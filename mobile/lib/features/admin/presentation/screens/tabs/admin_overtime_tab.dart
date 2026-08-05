@@ -548,13 +548,13 @@ class _AdminOvertimeTabState extends ConsumerState<AdminOvertimeTab> {
             const SizedBox(height: 8),
             const Text('Menambahkan catatan jam kerja ekstra langsung ke database payroll.', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13.5)),
             const SizedBox(height: 16),
-            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nama Karyawan', hintText: 'Contoh: Rudi Hartono')),
+            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nama Karyawan', hintText: 'Contoh: Dionisius Pratama')),
             const SizedBox(height: 12),
-            TextField(controller: nikCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'NIK / ID', hintText: 'Contoh: 2024090')),
+            TextField(controller: nikCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'NIK / ID', hintText: 'Contoh: 2026001')),
             const SizedBox(height: 12),
             TextField(controller: durationCtrl, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Durasi Lembur (Jam)', suffixText: 'Jam')),
             const SizedBox(height: 12),
-            TextField(controller: reasonCtrl, decoration: const InputDecoration(labelText: 'Alamat / Pekerjaan Tambahan', hintText: 'Contoh: Lembur maintenance genset')),
+            TextField(controller: reasonCtrl, decoration: const InputDecoration(labelText: 'Alasan / Pekerjaan Tambahan', hintText: 'Contoh: Lembur maintenance server production')),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -565,16 +565,17 @@ class _AdminOvertimeTabState extends ConsumerState<AdminOvertimeTab> {
                 label: const Text('Simpan Data Lembur', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.white)),
                 onPressed: () {
                   if (nameCtrl.text.isNotEmpty && durationCtrl.text.isNotEmpty) {
+                    final intHours = int.tryParse(durationCtrl.text.split('.').first) ?? 2;
                     final newReq = OvertimeRequestItem(
-                      id: 'OV-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+                      id: 'OV-2026-${DateTime.now().millisecondsSinceEpoch.toString().substring(9)}',
                       employeeName: nameCtrl.text.trim(),
-                      nik: nikCtrl.text.trim(),
-                      department: 'General Staff',
-                      date: 'Hari Ini',
+                      nik: nikCtrl.text.trim().isEmpty ? '2026031' : nikCtrl.text.trim(),
+                      department: 'IT & Operations',
+                      date: 'Hari Ini, 5 Agt 2026',
                       startTime: '17:00',
-                      endTime: '${17 + int.tryParse(durationCtrl.text.split('.').first)!}:00',
+                      endTime: '${17 + intHours}:00',
                       durationHours: double.tryParse(durationCtrl.text.trim()) ?? 2.0,
-                      reason: reasonCtrl.text.isNotEmpty ? reasonCtrl.text.trim() : 'Pekerjaan tambahan di luar jam kerja.',
+                      reason: reasonCtrl.text.isNotEmpty ? reasonCtrl.text.trim() : 'Pekerjaan tambahan di luar jam kerja reguler.',
                       avatarBg: AppTheme.tealButton,
                       status: 'Disetujui',
                     );

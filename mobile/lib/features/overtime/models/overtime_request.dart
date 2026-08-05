@@ -39,6 +39,42 @@ class OvertimeRequestItem {
     this.compensationType = 'Uang Lembur (Rate UU)',
   });
 
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'employeeName': employeeName,
+    'nik': nik,
+    'department': department,
+    'date': date,
+    'startTime': startTime,
+    'endTime': endTime,
+    'durationHours': durationHours,
+    'reason': reason,
+    'hourlyRate': hourlyRate,
+    'weeklyAccumulatedHours': weeklyAccumulatedHours,
+    'avatarBgHex': avatarBg.toARGB32(),
+    'status': status,
+    'compensationType': compensationType,
+  };
+
+  factory OvertimeRequestItem.fromJson(Map<String, dynamic> json) {
+    return OvertimeRequestItem(
+      id: json['id'] as String? ?? 'OV-000',
+      employeeName: json['employeeName'] as String? ?? 'Karyawan',
+      nik: json['nik'] as String? ?? '2026000',
+      department: json['department'] as String? ?? 'General',
+      date: json['date'] as String? ?? '5 Agustus 2026',
+      startTime: json['startTime'] as String? ?? '17:00',
+      endTime: json['endTime'] as String? ?? '20:00',
+      durationHours: (json['durationHours'] as num?)?.toDouble() ?? 3.0,
+      reason: json['reason'] as String? ?? 'Lembur operasional.',
+      hourlyRate: (json['hourlyRate'] as num?)?.toDouble() ?? 45000.0,
+      weeklyAccumulatedHours: (json['weeklyAccumulatedHours'] as num?)?.toDouble() ?? 4.0,
+      avatarBg: Color(json['avatarBgHex'] as int? ?? 0xFF1B4E6B),
+      status: json['status'] as String? ?? 'Pending',
+      compensationType: json['compensationType'] as String? ?? 'Uang Lembur (Rate UU)',
+    );
+  }
+
   // Perhitungan Uang Lembur Berdasarkan Ketentuan UU Ketenagakerjaan (PP 36/2021):
   // Jam pertama bernilai 1.5x upah per jam, jam berikutnya bernilai 2x upah per jam
   double get calculatedCompensation {

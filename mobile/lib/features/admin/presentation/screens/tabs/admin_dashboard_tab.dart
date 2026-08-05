@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/services/notification_service.dart';
-import '../../../../auth/presentation/controllers/auth_controller.dart';
 import '../../controllers/overtime_controller.dart';
 import '../../controllers/employee_attendance_controller.dart';
+import '../../controllers/admin_profile_controller.dart';
 import '../../widgets/admin_app_bar.dart';
 import '../admin_live_attendance_screen.dart';
 
@@ -34,7 +34,7 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authControllerProvider).user;
+    final profile = ref.watch(adminProfileControllerProvider);
     final overtimeList = ref.watch(overtimeControllerProvider);
     final overtimePendingCount = overtimeList.where((e) => e.status == 'Pending').length;
 
@@ -61,7 +61,7 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
 
               // Greeting & Subtitle
               Text(
-                'Halo, ${user?.fullName.split(' ').first ?? 'Admin'}!',
+                'Halo, ${profile.fullName.isNotEmpty ? profile.fullName : 'Admin'}!',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,

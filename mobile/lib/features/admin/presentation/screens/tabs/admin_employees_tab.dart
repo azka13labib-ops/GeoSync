@@ -70,13 +70,13 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
             const SizedBox(height: 20),
             TextField(
               controller: nameCtrl,
-              decoration: const InputDecoration(labelText: 'Nama Lengkap Karyawan', hintText: 'Contoh: Ahmad Sulaiman'),
+              decoration: const InputDecoration(labelText: 'Nama Lengkap Karyawan', hintText: 'Contoh: Dionisius Pratama'),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: nikCtrl,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'NIK / Corporate ID', hintText: 'Contoh: 2024001'),
+              decoration: const InputDecoration(labelText: 'NIK / Corporate ID', hintText: 'Contoh: 2026031'),
             ),
             const SizedBox(height: 16),
             TextField(
