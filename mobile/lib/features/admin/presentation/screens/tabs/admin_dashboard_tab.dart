@@ -9,6 +9,7 @@ import '../../../../../core/services/notification_service.dart';
 import '../../controllers/overtime_controller.dart';
 import '../../controllers/employee_attendance_controller.dart';
 import '../../controllers/admin_profile_controller.dart';
+import '../../controllers/admin_leave_controller.dart';
 import '../../widgets/admin_app_bar.dart';
 import '../admin_live_attendance_screen.dart';
 
@@ -28,7 +29,10 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
     super.initState();
     // Kirim notifikasi HP otomatis saat portal HRD pertama kali dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await NotificationService.instance.showPendingLeaveNotification(count: 3);
+      final pendingLeave = ref.read(adminLeaveControllerProvider).where((e) => e.status == 'Pending').length;
+      if (pendingLeave > 0) {
+        await NotificationService.instance.showPendingLeaveNotification(count: pendingLeave);
+      }
     });
   }
 
@@ -37,6 +41,8 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
     final profile = ref.watch(adminProfileControllerProvider);
     final overtimeList = ref.watch(overtimeControllerProvider);
     final overtimePendingCount = overtimeList.where((e) => e.status == 'Pending').length;
+    final leaveList = ref.watch(adminLeaveControllerProvider);
+    final leavePendingCount = leaveList.where((e) => e.status == 'Pending').length;
 
     final allEmployees = ref.watch(employeeAttendanceControllerProvider);
     final activeCount = allEmployees.where((e) => e.isActive).length;
@@ -118,7 +124,7 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
                       iconBg: const Color(0xFFF1F5F9),
                       iconColor: AppTheme.textSecondary,
                       title: 'CUTI PENDING\n',
-                      value: '3',
+                      value: '$leavePendingCount',
                       onTap: widget.onNavigateToLeave,
                     ),
                   ),

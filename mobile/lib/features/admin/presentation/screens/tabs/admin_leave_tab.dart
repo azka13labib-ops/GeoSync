@@ -6,31 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/app_toast.dart';
+import '../../controllers/admin_leave_controller.dart';
 import '../../widgets/admin_app_bar.dart';
-
-class LeaveRequestItem {
-  final String id;
-  final String employeeName;
-  final String department;
-  final String leaveType;
-  final String startDate;
-  final String endDate;
-  final String reason;
-  final Color avatarBg;
-  String status; // 'Pending', 'Disetujui', 'Ditolak'
-
-  LeaveRequestItem({
-    required this.id,
-    required this.employeeName,
-    required this.department,
-    required this.leaveType,
-    required this.startDate,
-    required this.endDate,
-    required this.reason,
-    required this.avatarBg,
-    this.status = 'Pending',
-  });
-}
 
 class AdminLeaveTab extends ConsumerStatefulWidget {
   const AdminLeaveTab({super.key});
@@ -42,57 +19,8 @@ class AdminLeaveTab extends ConsumerStatefulWidget {
 class _AdminLeaveTabState extends ConsumerState<AdminLeaveTab> {
   String _activeTab = 'Pending';
 
-  final List<LeaveRequestItem> _requests = [
-    LeaveRequestItem(
-      id: 'LV-2026-01',
-      employeeName: 'Risti Pramesti',
-      department: 'Public Relations',
-      leaveType: 'Cuti Tahunan',
-      startDate: '5 Agt 2026',
-      endDate: '7 Agt 2026',
-      reason: 'Acara pernikahan adik kandung di Bandung.',
-      avatarBg: const Color(0xFF1E3A8A),
-      status: 'Pending',
-    ),
-    LeaveRequestItem(
-      id: 'LV-2026-02',
-      employeeName: 'Citra Kirana',
-      department: 'HR & GA',
-      leaveType: 'Izin Sakit',
-      startDate: '5 Agt 2026',
-      endDate: '6 Agt 2026',
-      reason: 'Demam tinggi dan gejala influenza, surat dokter terlampir.',
-      avatarBg: const Color(0xFF0D9488),
-      status: 'Pending',
-    ),
-    LeaveRequestItem(
-      id: 'LV-2026-03',
-      employeeName: 'Hendra Gunawan',
-      department: 'Engineering',
-      leaveType: 'Cuti Tahunan',
-      startDate: '8 Agt 2026',
-      endDate: '10 Agt 2026',
-      reason: 'Liburan tahunan bersama keluarga yang telah direncanakan.',
-      avatarBg: const Color(0xFF2563EB),
-      status: 'Pending',
-    ),
-    LeaveRequestItem(
-      id: 'LV-2026-04',
-      employeeName: 'Bella Saphira',
-      department: 'Customer Service',
-      leaveType: 'Cuti Tahunan',
-      startDate: '1 Agt 2026',
-      endDate: '3 Agt 2026',
-      reason: 'Keperluan keluarga mendesak di luar kota.',
-      avatarBg: const Color(0xFF6A7E8B),
-      status: 'Disetujui',
-    ),
-  ];
-
   void _updateStatus(LeaveRequestItem item, String newStatus) {
-    setState(() {
-      item.status = newStatus;
-    });
+    ref.read(adminLeaveControllerProvider.notifier).updateStatus(item.id, newStatus);
     AppToast.show(
       context,
       title: newStatus == 'Disetujui' ? 'Cuti Disetujui' : 'Cuti Ditolak',
@@ -103,7 +31,8 @@ class _AdminLeaveTabState extends ConsumerState<AdminLeaveTab> {
 
   @override
   Widget build(BuildContext context) {
-    final displayedList = _requests.where((req) => req.status == _activeTab).toList();
+    final requests = ref.watch(adminLeaveControllerProvider);
+    final displayedList = requests.where((req) => req.status == _activeTab).toList();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
