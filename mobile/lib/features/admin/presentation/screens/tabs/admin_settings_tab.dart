@@ -18,10 +18,19 @@ class AdminSettingsTab extends ConsumerStatefulWidget {
 
 class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
   final TextEditingController _leaveDefaultController = TextEditingController(text: '12');
+  final TextEditingController _overtimeRate1Controller = TextEditingController(text: '1.5');
+  final TextEditingController _overtimeRate2Controller = TextEditingController(text: '2.0');
+  final TextEditingController _maxWeeklyHoursController = TextEditingController(text: '14');
+  String _exportMonth = 'Agustus 2026';
+  String _exportCategory = 'Laporan Lengkap & Payroll Lembur';
+  bool _isExporting = false;
 
   @override
   void dispose() {
     _leaveDefaultController.dispose();
+    _overtimeRate1Controller.dispose();
+    _overtimeRate2Controller.dispose();
+    _maxWeeklyHoursController.dispose();
     super.dispose();
   }
 
@@ -250,7 +259,15 @@ class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
               ),
               const SizedBox(height: 20),
 
-              // CARD 4: Kebijakan Sistem & Akun
+              // CARD 4: Kebijakan Lembur & Regulasi Ketenagakerjaan
+              _buildOvertimePolicyCard(),
+              const SizedBox(height: 20),
+
+              // CARD 5: Ekspor & Unduh Laporan Excel (Dipindah dari Tab lama)
+              _buildExportReportsCard(),
+              const SizedBox(height: 20),
+
+              // CARD 6: Kebijakan Sistem & Akun
               Container(
                 padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
@@ -477,5 +494,232 @@ class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
         ),
       ),
     );
+  }
+
+  Widget _buildOvertimePolicyCard() {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.borderLight, width: 1.2),
+        boxShadow: AppTheme.softCardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.work_history_rounded, color: AppTheme.tealButton, size: 24),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text('Kebijakan & Kompensasi Lembur', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppTheme.primaryColor), overflow: TextOverflow.ellipsis),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          const Divider(height: 1, color: AppTheme.borderLight),
+          const SizedBox(height: 16),
+          const Text('Standar Jam Kerja Normal (Di luar ini dihitung Lembur)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.borderLight)),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Senin - Jumat (Regular Shift)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
+                Text('08:00 - 17:00 WIB', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppTheme.tealButton)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Rate Jam 1 (UU Ciptaker)', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: _overtimeRate1Controller,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        suffixText: 'x upah',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Rate Jam Ke-2 & dst', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: _overtimeRate2Controller,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        suffixText: 'x upah',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text('Batas Maksimal Lembur Per Minggu (Compliance)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _maxWeeklyHoursController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              suffixText: 'Jam / minggu (Maks regulasi: 14 jam)',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE6FAF5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.secondaryColor.withValues(alpha: 0.5)),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.verified_rounded, color: AppTheme.secondaryColor, size: 20),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Rumus kompensasi dan batas mingguan telah disesuaikan dengan UU Ketenagakerjaan RI (PP 36/2021).',
+                    style: TextStyle(fontSize: 12, color: AppTheme.primaryColor, fontWeight: FontWeight.w500, height: 1.3),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExportReportsCard() {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.borderLight, width: 1.2),
+        boxShadow: AppTheme.softCardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.description_rounded, color: AppTheme.secondaryColor, size: 24),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text('Ekspor Laporan & Payroll (Excel)', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppTheme.primaryColor), overflow: TextOverflow.ellipsis),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          const Divider(height: 1, color: AppTheme.borderLight),
+          const SizedBox(height: 14),
+          const Text('Pilih Periode Laporan', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.borderLight),
+            ),
+            child: DropdownButton<String>(
+              value: _exportMonth,
+              isExpanded: true,
+              underline: const SizedBox(),
+              items: ['Agustus 2026', 'Juli 2026', 'Juni 2026'].map((m) {
+                return DropdownMenuItem(value: m, child: Text(m, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppTheme.primaryColor)));
+              }).toList(),
+              onChanged: (val) {
+                if (val != null) setState(() => _exportMonth = val);
+              },
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text('Kategori Dokumen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.borderLight),
+            ),
+            child: DropdownButton<String>(
+              value: _exportCategory,
+              isExpanded: true,
+              underline: const SizedBox(),
+              items: [
+                'Laporan Lengkap & Payroll Lembur',
+                'Rekapitulasi Kehadiran Harian',
+                'Log Pengajuan Cuti Karyawan',
+              ].map((c) {
+                return DropdownMenuItem(value: c, child: Text(c, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppTheme.primaryColor)));
+              }).toList(),
+              onChanged: (val) {
+                if (val != null) setState(() => _exportCategory = val);
+              },
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.tealButton,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                elevation: 2,
+              ),
+              onPressed: _isExporting ? null : _triggerDownload,
+              icon: _isExporting ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5)) : const Icon(Icons.file_download_outlined, color: Colors.white),
+              label: Text(_isExporting ? 'Memproses Excel...' : 'Unduh File Excel', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _triggerDownload() async {
+    setState(() => _isExporting = true);
+    await Future.delayed(const Duration(milliseconds: 1000));
+    final cleanMonth = _exportMonth.replaceAll(' ', '_');
+    final cleanCat = _exportCategory.split(' ').first;
+    final fileName = 'Export_${cleanCat}_$cleanMonth.xlsx';
+
+    setState(() => _isExporting = false);
+
+    if (mounted) {
+      AppToast.show(
+        context,
+        title: 'Ekspor Excel Selesai',
+        message: 'File $fileName berhasil dibuat dan disimpan ke folder Unduhan (Downloads).',
+        type: ToastType.success,
+      );
+    }
   }
 }

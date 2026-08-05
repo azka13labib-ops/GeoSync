@@ -7,13 +7,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/services/notification_service.dart';
 import '../../../../auth/presentation/controllers/auth_controller.dart';
+import '../../controllers/overtime_controller.dart';
+import '../../controllers/employee_attendance_controller.dart';
 import '../../widgets/admin_app_bar.dart';
 import '../admin_live_attendance_screen.dart';
 
 class AdminDashboardTab extends ConsumerStatefulWidget {
   final VoidCallback onNavigateToLeave;
+  final VoidCallback onNavigateToOvertime;
 
-  const AdminDashboardTab({super.key, required this.onNavigateToLeave});
+  const AdminDashboardTab({super.key, required this.onNavigateToLeave, required this.onNavigateToOvertime});
 
   @override
   ConsumerState<AdminDashboardTab> createState() => _AdminDashboardTabState();
@@ -32,6 +35,17 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authControllerProvider).user;
+    final overtimeList = ref.watch(overtimeControllerProvider);
+    final overtimePendingCount = overtimeList.where((e) => e.status == 'Pending').length;
+
+    final allEmployees = ref.watch(employeeAttendanceControllerProvider);
+    final activeCount = allEmployees.where((e) => e.isActive).length;
+    final hadirCount = allEmployees.where((e) => e.attendanceStatus == 'Hadir').length;
+    final terlambatCount = allEmployees.where((e) => e.attendanceStatus == 'Terlambat').length;
+    final recentCheckedIn = allEmployees
+        .where((e) => e.attendanceStatus == 'Hadir' || e.attendanceStatus == 'Terlambat')
+        .take(4)
+        .toList();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -61,7 +75,7 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
               ),
               const SizedBox(height: 20),
 
-              // 2x2 Stat Cards Grid
+              // Stat Cards Grid
               Row(
                 children: [
                   Expanded(
@@ -70,7 +84,7 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
                       iconBg: const Color(0xFFE8EEF5),
                       iconColor: AppTheme.primaryColor,
                       title: 'TOTAL KARYAWAN\nAKTIF',
-                      value: '1,250',
+                      value: '$activeCount',
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -80,7 +94,7 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
                       iconBg: AppTheme.mintAlertBg,
                       iconColor: AppTheme.secondaryColor,
                       title: 'HADIR HARI INI\n',
-                      value: '1,180',
+                      value: '$hadirCount',
                     ),
                   ),
                 ],
@@ -94,7 +108,7 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
                       iconBg: AppTheme.badgeRedBg,
                       iconColor: AppTheme.badgeRedText,
                       title: 'TERLAMBAT\n',
-                      value: '15',
+                      value: '$terlambatCount',
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -105,6 +119,33 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
                       iconColor: AppTheme.textSecondary,
                       title: 'CUTI PENDING\n',
                       value: '3',
+                      onTap: widget.onNavigateToLeave,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      icon: Icons.timer_outlined,
+                      iconBg: const Color(0xFFE0E7FF),
+                      iconColor: const Color(0xFF4F46E5),
+                      title: 'LEMBUR HARI INI\n(AKTIF)',
+                      value: '24',
+                      onTap: widget.onNavigateToOvertime,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildStatCard(
+                      icon: Icons.more_time_rounded,
+                      iconBg: const Color(0xFFFEF3C7),
+                      iconColor: const Color(0xFFD97706),
+                      title: 'LEMBUR PENDING\n',
+                      value: '$overtimePendingCount',
+                      onTap: widget.onNavigateToOvertime,
                     ),
                   ),
                 ],
@@ -163,32 +204,28 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
                         ],
                       ),
                     ),
-                    // Row 1: Ahmad Yani
-                    _buildAttendanceRow(
-                      name: 'Ahmad\nYani',
-                      initial: 'AY',
-                      time: '08:00\nWIB',
-                      isLate: false,
-                      avatarBg: const Color(0xFF3B82F6),
-                    ),
-                    const Divider(height: 1, color: AppTheme.borderLight, indent: 20, endIndent: 20),
-                    // Row 2: Siti Aminah
-                    _buildAttendanceRow(
-                      name: 'Siti\nAminah',
-                      initial: 'SA',
-                      time: '08:05\nWIB',
-                      isLate: false,
-                      avatarBg: const Color(0xFF10B981),
-                    ),
-                    const Divider(height: 1, color: AppTheme.borderLight, indent: 20, endIndent: 20),
-                    // Row 3: Rudi Hartono
-                    _buildAttendanceRow(
-                      name: 'Rudi\nHartono',
-                      initial: 'RH',
-                      time: '08:20\nWIB',
-                      isLate: true,
-                      avatarBg: const Color(0xFFF59E0B),
-                    ),
+                    if (recentCheckedIn.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Text('Belum ada rekam absensi masuk hari ini.', style: TextStyle(color: AppTheme.textSecondary)),
+                      )
+                    else
+                      ...recentCheckedIn.map((emp) {
+                        final initials = emp.name.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join().toUpperCase();
+                        return Column(
+                          children: [
+                            _buildAttendanceRow(
+                              name: emp.name,
+                              initial: initials.isEmpty ? 'E' : initials,
+                              time: emp.attendanceTime,
+                              isLate: emp.attendanceStatus == 'Terlambat',
+                              avatarBg: emp.avatarColor,
+                            ),
+                            if (emp != recentCheckedIn.last)
+                              const Divider(height: 1, color: AppTheme.borderLight, indent: 20, endIndent: 20),
+                          ],
+                        );
+                      }),
                   ],
                 ),
               ),
@@ -206,8 +243,9 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
     required Color iconColor,
     required String title,
     required String value,
+    VoidCallback? onTap,
   }) {
-    return Container(
+    final cardContent = Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -235,13 +273,29 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppTheme.primaryColor),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppTheme.primaryColor),
+              ),
+              if (onTap != null)
+                const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppTheme.tealButton),
+            ],
           ),
         ],
       ),
     );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: cardContent,
+      );
+    }
+    return cardContent;
   }
 
   Widget _buildAttendanceRow({

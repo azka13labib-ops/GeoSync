@@ -7,12 +7,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app_constants.dart';
 import 'core/network/supabase_client.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/local_storage_service.dart';
 import 'core/theme/app_theme.dart';
 import 'navigation/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppSupabase.init();
+  await LocalStorageService.init(); // Inisialisasi penyimpanan persistem lokal
   await NotificationService.instance.init(); // Inisialisasi sistem notifikasi HP
 
   runApp(

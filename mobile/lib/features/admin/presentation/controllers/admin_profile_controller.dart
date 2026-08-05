@@ -5,6 +5,7 @@
 
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/services/local_storage_service.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 
 class AdminProfileState {
@@ -41,28 +42,66 @@ final adminProfileControllerProvider = NotifierProvider<AdminProfileController, 
 );
 
 class AdminProfileController extends Notifier<AdminProfileState> {
+  static const _keyFullName = 'admin_profile_fullname';
+  static const _keyRoleTitle = 'admin_profile_roletitle';
+  static const _keyPhone = 'admin_profile_phone';
+  static const _keyImage = 'admin_profile_imagepath';
+
   @override
   AdminProfileState build() {
     final user = ref.read(authControllerProvider).user;
+
+    final savedName = LocalStorageService.getString(_keyFullName);
+    final savedRole = LocalStorageService.getString(_keyRoleTitle);
+    final savedPhone = LocalStorageService.getString(_keyPhone);
+    final savedImagePath = LocalStorageService.getString(_keyImage);
+
+    File? imageFile;
+    if (savedImagePath != null && File(savedImagePath).existsSync()) {
+      imageFile = File(savedImagePath);
+    }
+
     return AdminProfileState(
-      fullName: user?.fullName ?? 'Executive HRD',
-      roleTitle: 'Chief Human Resources Officer',
-      phone: '0812-3456-7890',
-      profileImage: null,
+      fullName: savedName ?? user?.fullName ?? 'Executive HRD',
+      roleTitle: savedRole ?? 'Chief Human Resources Officer',
+      phone: savedPhone ?? '0812-3456-7890',
+      profileImage: imageFile,
     );
   }
 
-  void updateProfile({
+  Future<void> updateProfile({
     String? fullName,
     String? roleTitle,
     String? phone,
     File? profileImage,
-  }) {
+  }) async {
+    File? newImg = profileImage ?? state.profileImage;
+
+    if (profileImage != null) {
+      // Simpan gambar secara permanen di local device agar anti-reset saat close app!
+      final permPath = await LocalStorageService.savePermanentImage(profileImage, 'hrd_avatar');
+      if (permPath != null) {
+        await LocalStorageService.setString(_keyImage, permPath);
+        newImg = File(permPath);
+      }
+    }
+
+    if (fullName != null) {
+      await LocalStorageService.setString(_keyFullName, fullName);
+    }
+    if (roleTitle != null) {
+      await LocalStorageService.setString(_keyRoleTitle, roleTitle);
+    }
+    if (phone != null) {
+      await LocalStorageService.setString(_keyPhone, phone);
+    }
+
     state = state.copyWith(
       fullName: fullName,
       roleTitle: roleTitle,
       phone: phone,
-      profileImage: profileImage,
+      profileImage: newImg,
     );
   }
 }
+

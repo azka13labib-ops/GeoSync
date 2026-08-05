@@ -6,23 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_theme.dart';
 import '../../../../../core/widgets/app_toast.dart';
+import '../../../domain/models/employee_real_model.dart';
+import '../../controllers/employee_attendance_controller.dart';
 import '../../widgets/admin_app_bar.dart';
-
-class EmployeeItem {
-  final String name;
-  final String nik;
-  final String department;
-  final bool isActive;
-  final Color avatarColor;
-
-  EmployeeItem({
-    required this.name,
-    required this.nik,
-    required this.department,
-    required this.isActive,
-    required this.avatarColor,
-  });
-}
 
 class AdminEmployeesTab extends ConsumerStatefulWidget {
   const AdminEmployeesTab({super.key});
@@ -35,15 +21,6 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
   String _selectedFilter = 'Semua';
   final _searchController = TextEditingController();
   String _searchQuery = '';
-
-  final List<EmployeeItem> _employees = [
-    EmployeeItem(name: 'Budi Santoso', nik: '2023001', department: 'IT Support', isActive: true, avatarColor: const Color(0xFF1B4E6B)),
-    EmployeeItem(name: 'Siti Aminah', nik: '2023002', department: 'HR Executive', isActive: true, avatarColor: const Color(0xFF8DA3E8)),
-    EmployeeItem(name: 'Rina Melati', nik: '2022045', department: 'Finance Officer', isActive: false, avatarColor: const Color(0xFF6A7E8B)),
-    EmployeeItem(name: 'Andi Wijaya', nik: '2023004', department: 'Operations Lead', isActive: true, avatarColor: const Color(0xFF90BBE0)),
-    EmployeeItem(name: 'Super Admin HRD', nik: '11111', department: 'Executive Board', isActive: true, avatarColor: AppTheme.primaryColor),
-    EmployeeItem(name: 'Budi (Karyawan Test)', nik: '12345', department: 'Field Staff', isActive: true, avatarColor: AppTheme.secondaryColor),
-  ];
 
   @override
   void dispose() {
@@ -116,15 +93,20 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
                 label: const Text('Simpan & Aktifkan Akun', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                 onPressed: () {
                   if (nameCtrl.text.isNotEmpty && nikCtrl.text.isNotEmpty) {
-                    setState(() {
-                      _employees.insert(0, EmployeeItem(
-                        name: nameCtrl.text.trim(),
-                        nik: nikCtrl.text.trim(),
-                        department: 'Staff Baru',
-                        isActive: true,
-                        avatarColor: AppTheme.tealButton,
-                      ));
-                    });
+                    final newEmp = RealEmployeeModel(
+                      name: nameCtrl.text.trim(),
+                      nik: nikCtrl.text.trim(),
+                      email: '${nameCtrl.text.trim().toLowerCase().replaceAll(' ', '.')}@geosync.co.id',
+                      password: passwordCtrl.text.trim().isEmpty ? 'Geosync!2026' : passwordCtrl.text.trim(),
+                      department: 'Staff Baru',
+                      roleTitle: 'Specialist',
+                      isActive: true,
+                      avatarColorHex: AppTheme.tealButton.toARGB32(),
+                      attendanceStatus: 'Hadir',
+                      attendanceTime: '08:00 WIB',
+                      attendanceLocation: 'Head Office',
+                    );
+                    ref.read(employeeAttendanceControllerProvider.notifier).addEmployee(newEmp);
                     Navigator.pop(ctx);
                     AppToast.show(
                       context,
@@ -142,7 +124,7 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
     );
   }
 
-  void _showEmployeeOptions(EmployeeItem emp) {
+  void _showEmployeeOptions(RealEmployeeModel emp) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -173,23 +155,13 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
               leading: Icon(emp.isActive ? Icons.block_flipped : Icons.check_circle_outline, color: emp.isActive ? AppTheme.errorColor : AppTheme.secondaryColor),
               title: Text(emp.isActive ? 'Nonaktifkan Akun' : 'Aktifkan Kembali Akun', style: TextStyle(fontWeight: FontWeight.w600, color: emp.isActive ? AppTheme.errorColor : AppTheme.secondaryColor)),
               onTap: () {
-                setState(() {
-                  final idx = _employees.indexOf(emp);
-                  if (idx != -1) {
-                    _employees[idx] = EmployeeItem(
-                      name: emp.name,
-                      nik: emp.nik,
-                      department: emp.department,
-                      isActive: !emp.isActive,
-                      avatarColor: emp.avatarColor,
-                    );
-                  }
-                });
+                final updated = emp.copyWith(isActive: !emp.isActive);
+                ref.read(employeeAttendanceControllerProvider.notifier).updateEmployeeDetails(updated);
                 Navigator.pop(ctx);
                 AppToast.show(
                   context,
                   title: emp.isActive ? 'Akun Dinonaktifkan' : 'Akun Diaktifkan Kembali',
-                  message: 'Status akses sistem untuk ${emp.name} telah diperbarui.',
+                  message: 'Status akses sistem untuk ${emp.name} telah diperbarui (Persisten).',
                   type: emp.isActive ? ToastType.error : ToastType.success,
                 );
               },
@@ -202,8 +174,10 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
 
   @override
   Widget build(BuildContext context) {
+    final employeesList = ref.watch(employeeAttendanceControllerProvider);
+
     // Filter list
-    final filteredList = _employees.where((emp) {
+    final filteredList = employeesList.where((emp) {
       final matchesQuery = emp.name.toLowerCase().contains(_searchQuery.toLowerCase()) || emp.nik.contains(_searchQuery);
       if (!matchesQuery) return false;
       if (_selectedFilter == 'Aktif') return emp.isActive;

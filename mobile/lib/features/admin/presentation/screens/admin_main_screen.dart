@@ -7,7 +7,7 @@ import '../../../../../core/theme/app_theme.dart';
 import 'tabs/admin_dashboard_tab.dart';
 import 'tabs/admin_employees_tab.dart';
 import 'tabs/admin_leave_tab.dart';
-import 'tabs/admin_export_tab.dart';
+import 'tabs/admin_overtime_tab.dart';
 import 'tabs/admin_settings_tab.dart';
 
 class AdminMainScreen extends StatefulWidget {
@@ -27,10 +27,13 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      AdminDashboardTab(onNavigateToLeave: () => _switchTab(2)),
+      AdminDashboardTab(
+        onNavigateToLeave: () => _switchTab(2),
+        onNavigateToOvertime: () => _switchTab(3),
+      ),
       const AdminEmployeesTab(),
       const AdminLeaveTab(),
-      const AdminExportTab(),
+      const AdminOvertimeTab(),
       const AdminSettingsTab(),
     ];
 
@@ -89,7 +92,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                         _buildNavItem(0, Icons.grid_view_rounded, 'Dasbor'),
                         _buildNavItem(1, Icons.people_alt_rounded, 'Data Karyawan'),
                         _buildNavItem(2, Icons.assignment_turned_in_rounded, 'Cuti'),
-                        _buildNavItem(3, Icons.download_rounded, 'Export'),
+                        _buildNavItem(3, Icons.more_time_rounded, 'Lembur'),
                         _buildNavItem(4, Icons.settings_rounded, 'Settings'),
                       ],
                     ),
