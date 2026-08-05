@@ -78,8 +78,13 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
               children: [
                 const Icon(Icons.person_add_alt_1_rounded, color: AppTheme.tealButton, size: 28),
                 const SizedBox(width: 12),
-                const Text('Tambah Karyawan Baru', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTheme.primaryColor)),
-                const Spacer(),
+                const Expanded(
+                  child: Text(
+                    'Tambah Karyawan Baru',
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: AppTheme.primaryColor),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
               ],
             ),

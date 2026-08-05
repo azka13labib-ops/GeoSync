@@ -48,8 +48,13 @@ class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
               children: [
                 const Icon(Icons.add_location_alt_rounded, color: AppTheme.tealButton, size: 28),
                 const SizedBox(width: 12),
-                const Text('Tambah Lokasi Kantor', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTheme.primaryColor)),
-                const Spacer(),
+                const Expanded(
+                  child: Text(
+                    'Tambah Lokasi Kantor',
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: AppTheme.primaryColor),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
               ],
             ),
