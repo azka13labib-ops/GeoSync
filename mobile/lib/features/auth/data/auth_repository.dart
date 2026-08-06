@@ -62,7 +62,7 @@ class AuthRepository {
   /// Semua login wajib melalui Supabase Auth (NIK@geosync.com).
   /// Untuk keperluan testing/demo, buat akun nyata melalui Supabase Auth Dashboard:
   ///   1. Buka: https://app.supabase.com → Authentication → Users → Invite User
-  ///   2. Email format: <NIK>@geosync.com, contoh: 2026001@geosync.com
+  ///   2. Email format: `<NIK>@geosync.com`, contoh: 2026001@geosync.com
   ///   3. Set role & profile di tabel `employees` setelah akun dibuat.
   /// JANGAN menaruh kredensial apa pun di kode sumber.
   Future<EmployeeModel> signInWithNik(String nik, String password) async {

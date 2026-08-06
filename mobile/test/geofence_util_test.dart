@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile/core/utils/geofence_util.dart';
+import 'package:geosync/core/utils/geofence_util.dart';
 
 void main() {
   group('GeofenceUtil Tests', () {

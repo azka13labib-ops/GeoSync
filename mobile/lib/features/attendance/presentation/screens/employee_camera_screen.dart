@@ -143,7 +143,7 @@ class _EmployeeCameraScreenState extends ConsumerState<EmployeeCameraScreen> {
 
     try {
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
       // FIX #4: Cek apakah posisi ini dari mock/fake GPS app
@@ -365,7 +365,7 @@ class _EmployeeCameraScreenState extends ConsumerState<EmployeeCameraScreen> {
                               height: 80,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: _locationStatusColor.withOpacity(0.2),
+                                color: _locationStatusColor.withValues(alpha: 0.2),
                               ),
                               child: Center(
                                 child: Icon(Icons.person_pin_circle_rounded,
@@ -382,16 +382,16 @@ class _EmployeeCameraScreenState extends ConsumerState<EmployeeCameraScreen> {
                       duration: const Duration(milliseconds: 300),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: _locationStatusColor.withOpacity(0.06),
+                        color: _locationStatusColor.withValues(alpha: 0.06),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: _locationStatusColor.withOpacity(0.3)),
+                        border: Border.all(color: _locationStatusColor.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: _locationStatusColor.withOpacity(0.12),
+                              color: _locationStatusColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
@@ -471,9 +471,9 @@ class _EmployeeCameraScreenState extends ConsumerState<EmployeeCameraScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.errorColor.withOpacity(0.08),
+                        color: AppTheme.errorColor.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.errorColor.withOpacity(0.3)),
+                        border: Border.all(color: AppTheme.errorColor.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         children: [

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile/features/auth/domain/employee_model.dart';
-import 'package:mobile/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:mobile/features/auth/data/auth_repository.dart';
+import 'package:geosync/features/auth/domain/employee_model.dart';
+import 'package:geosync/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:geosync/features/auth/data/auth_repository.dart';
 
 // Mock sederhana untuk AuthRepository agar bisa diuji tanpa Supabase asli
 class MockAuthRepository implements AuthRepository {
@@ -12,6 +12,9 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<EmployeeModel?> getCurrentEmployee() async => null;
+
+  @override
+  Future<String> getDeviceUuid() async => currentDeviceUuid;
 
   @override
   Future<void> signOut() async {}
@@ -39,6 +42,7 @@ class MockAuthRepository implements AuthRepository {
       officeLocationId: 'hq-1',
       deviceId: registeredDeviceUuid,
       leaveBalance: 12,
+      isActive: true,
     );
   }
 }

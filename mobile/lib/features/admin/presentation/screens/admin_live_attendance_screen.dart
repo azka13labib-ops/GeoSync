@@ -441,7 +441,7 @@ class _AdminLiveAttendanceScreenState extends ConsumerState<AdminLiveAttendanceS
   }
 
   Widget _buildDateSelectorButton(String dateText, bool isSelected) {
-    final shortText = dateText.split(' ')[0] + ' ' + dateText.split(' ')[1].substring(0, 3);
+    final shortText = '${dateText.split(' ')[0]} ${dateText.split(' ')[1].substring(0, 3)}';
     return GestureDetector(
       onTap: () {
         ref.read(selectedAttendanceDateProvider.notifier).state = dateText;

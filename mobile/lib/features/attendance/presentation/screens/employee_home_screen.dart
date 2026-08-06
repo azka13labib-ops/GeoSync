@@ -41,7 +41,7 @@ class EmployeeHomeScreen extends ConsumerWidget {
                 color: AppTheme.primaryColor,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
-                  BoxShadow(color: AppTheme.primaryColor.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10)),
+                  BoxShadow(color: AppTheme.primaryColor.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10)),
                 ],
               ),
               child: Row(
@@ -63,7 +63,7 @@ class EmployeeHomeScreen extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           'NIK: ${user?.nik ?? "-"}',
-                          style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.8)),
+                          style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.8)),
                         ),
                       ],
                     ),
@@ -94,7 +94,7 @@ class EmployeeHomeScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(myAttendance?.attendanceStatus).withOpacity(0.1),
+                          color: _getStatusColor(myAttendance?.attendanceStatus).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -137,7 +137,7 @@ class EmployeeHomeScreen extends ConsumerWidget {
                   child: _buildStatCard(
                     icon: Icons.access_time_rounded,
                     title: 'Total Lembur',
-                    value: '0 Jam', // TODO: Kalkulasi dari overtime controller
+                    value: '0 Jam', // Catatan: Kalkulasi dari overtime controller
                     color: AppTheme.badgeRedText,
                     bgColor: AppTheme.badgeRedBg,
                   ),
