@@ -528,7 +528,10 @@ class _AdminSettingsTabState extends ConsumerState<AdminSettingsTab> {
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Senin - Jumat (Regular Shift)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
+                Expanded(
+                  child: Text('Senin - Jumat (Regular Shift)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
+                ),
+                SizedBox(width: 8),
                 Text('08:00 - 17:00 WIB', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppTheme.tealButton)),
               ],
             ),

@@ -7,8 +7,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/local_storage_service.dart';
 import '../../domain/models/employee_real_model.dart';
 
-// Provider untuk memilih tanggal monitoring (5 Agustus 2026 / 6 Agustus 2026)
-final selectedAttendanceDateProvider = StateProvider<String>((ref) => '5 Agustus 2026');
+// Helper untuk membaca tanggal real hari ini
+String getTodayIndonesianDate() {
+  final now = DateTime.now();
+  final months = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  return '${now.day} ${months[now.month - 1]} ${now.year}';
+}
+
+// Provider untuk memilih tanggal monitoring (secara default membaca tanggal HARI INI secara dinamis)
+final selectedAttendanceDateProvider = StateProvider<String>((ref) => getTodayIndonesianDate());
 
 final employeeAttendanceControllerProvider = NotifierProvider<EmployeeAttendanceController, List<RealEmployeeModel>>(
   EmployeeAttendanceController.new,
@@ -25,7 +35,7 @@ class EmployeeAttendanceController extends Notifier<List<RealEmployeeModel>> {
 
   @override
   List<RealEmployeeModel> build() {
-    // Watch perubahan tanggal (5 atau 6 Agustus 2026)
+    // Watch perubahan tanggal monitoring
     final dateKey = _currentDateKey;
     final savedData = LocalStorageService.getJson(dateKey);
 
@@ -46,8 +56,9 @@ class EmployeeAttendanceController extends Notifier<List<RealEmployeeModel>> {
   }
 
   List<RealEmployeeModel> _getInitialListForDate(String date) {
-    if (date == '6 Agustus 2026') {
-      // Besok: secara awal semua Belum Hadir (siap dikontrol mutlak oleh Admin "Apa Kata Saya")
+    // Untuk tanggal baru (termasuk 6 Agustus dst, selain 5 Agustus yang ada dummy awal 22 hadir),
+    // secara default semua Belum Hadir sampai di-absen oleh Admin atau check-in mandiri.
+    if (date != '5 Agustus 2026') {
       return RealEmployeeModel.initial30Employees.map((e) => e.copyWith(
         attendanceStatus: 'Belum Hadir',
         attendanceTime: '—',

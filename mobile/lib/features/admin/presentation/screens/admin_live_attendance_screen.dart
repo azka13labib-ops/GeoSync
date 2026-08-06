@@ -317,20 +317,30 @@ class _AdminLiveAttendanceScreenState extends ConsumerState<AdminLiveAttendanceS
         children: [
           Container(height: 1, color: AppTheme.borderLight),
 
-          // Date Selector Banner (5 Agustus vs 6 Agustus 2026)
+          // Date Selector Banner (Dinamis: Kemarin & Hari Ini)
           Container(
             color: const Color(0xFFF8FAFD),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_month_rounded, color: AppTheme.primaryColor, size: 20),
-                const SizedBox(width: 10),
-                const Text('Hari Monitoring:', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppTheme.primaryColor)),
-                const Spacer(),
-                _buildDateSelectorButton('5 Agustus 2026', selectedDate == '5 Agustus 2026'),
-                const SizedBox(width: 8),
-                _buildDateSelectorButton('6 Agustus 2026', selectedDate == '6 Agustus 2026'),
-              ],
+            child: Builder(
+              builder: (context) {
+                final now = DateTime.now();
+                final yesterday = now.subtract(const Duration(days: 1));
+                final months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                final strToday = '${now.day} ${months[now.month - 1]} ${now.year}';
+                final strYesterday = '${yesterday.day} ${months[yesterday.month - 1]} ${yesterday.year}';
+                
+                return Row(
+                  children: [
+                    const Icon(Icons.calendar_month_rounded, color: AppTheme.primaryColor, size: 20),
+                    const SizedBox(width: 10),
+                    const Text('Hari Monitoring:', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppTheme.primaryColor)),
+                    const Spacer(),
+                    _buildDateSelectorButton(strYesterday, selectedDate == strYesterday),
+                    const SizedBox(width: 8),
+                    _buildDateSelectorButton(strToday, selectedDate == strToday),
+                  ],
+                );
+              },
             ),
           ),
           Container(height: 1, color: AppTheme.borderLight),
