@@ -2,6 +2,7 @@
 // GEOSYNC - ADMIN DASHBOARD TAB (PORTAL HRD TAB 1)
 // ====================================================================
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_theme.dart';
@@ -24,6 +25,9 @@ class AdminDashboardTab extends ConsumerStatefulWidget {
 }
 
 class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
+  Timer? _timer;
+  DateTime _currentTime = DateTime.now();
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +38,28 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
         await NotificationService.instance.showPendingLeaveNotification(count: pendingLeave);
       }
     });
+
+    // Mulai Realtime Clock
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          _currentTime = DateTime.now();
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String _getRealtimeClock(DateTime time) {
+    final h = time.hour.toString().padLeft(2, '0');
+    final m = time.minute.toString().padLeft(2, '0');
+    final s = time.second.toString().padLeft(2, '0');
+    return '$h:$m:$s WIB';
   }
 
   @override
@@ -75,9 +101,31 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Ringkasan aktivitas hari ini.',
-                style: TextStyle(fontSize: 14.5, color: AppTheme.textSecondary, fontWeight: FontWeight.w500),
+              Row(
+                children: [
+                  const Text(
+                    'Ringkasan aktivitas hari ini.',
+                    style: TextStyle(fontSize: 14.5, color: AppTheme.textSecondary, fontWeight: FontWeight.w500),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.access_time_rounded, size: 14, color: AppTheme.primaryColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          _getRealtimeClock(_currentTime),
+                          style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppTheme.primaryColor),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
 
@@ -89,23 +137,29 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
                       icon: Icons.groups_rounded,
                       iconBg: const Color(0xFFE8EEF5),
                       iconColor: AppTheme.primaryColor,
-                      title: 'TOTAL KARYAWAN\nAKTIF',
+                      title: 'Total Aktif',
                       value: '$activeCount',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminLiveAttendanceScreen()));
+                      },
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: _buildStatCard(
                       icon: Icons.verified_user_outlined,
                       iconBg: AppTheme.mintAlertBg,
                       iconColor: AppTheme.secondaryColor,
-                      title: 'HADIR HARI INI\n',
+                      title: 'Hadir Hari Ini',
                       value: '$hadirCount',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminLiveAttendanceScreen()));
+                      },
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
@@ -113,24 +167,27 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
                       icon: Icons.access_time_filled_rounded,
                       iconBg: AppTheme.badgeRedBg,
                       iconColor: AppTheme.badgeRedText,
-                      title: 'TERLAMBAT\n',
+                      title: 'Terlambat',
                       value: '$terlambatCount',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminLiveAttendanceScreen()));
+                      },
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: _buildStatCard(
                       icon: Icons.event_note_rounded,
                       iconBg: const Color(0xFFF1F5F9),
                       iconColor: AppTheme.textSecondary,
-                      title: 'CUTI PENDING\n',
+                      title: 'Cuti Pending',
                       value: '$leavePendingCount',
                       onTap: widget.onNavigateToLeave,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
@@ -138,25 +195,25 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
                       icon: Icons.timer_outlined,
                       iconBg: const Color(0xFFE0E7FF),
                       iconColor: const Color(0xFF4F46E5),
-                      title: 'LEMBUR HARI INI\n(AKTIF)',
+                      title: 'Lembur Aktif',
                       value: '24',
                       onTap: widget.onNavigateToOvertime,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: _buildStatCard(
                       icon: Icons.more_time_rounded,
                       iconBg: const Color(0xFFFEF3C7),
                       iconColor: const Color(0xFFD97706),
-                      title: 'LEMBUR PENDING\n',
+                      title: 'Lembur Pending',
                       value: '$overtimePendingCount',
                       onTap: widget.onNavigateToOvertime,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
               // Section Header: Kehadiran Langsung
               Row(
@@ -252,44 +309,44 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
     VoidCallback? onTap,
   }) {
     final cardContent = Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.borderLight, width: 1.2),
         boxShadow: AppTheme.softCardShadow,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
-            child: Icon(icon, color: iconColor, size: 24),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
-          const SizedBox(height: 16),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textSecondary,
-              letterSpacing: 0.5,
-              height: 1.3,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.primaryColor, height: 1.1),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppTheme.primaryColor),
-              ),
-              if (onTap != null)
-                const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppTheme.tealButton),
-            ],
-          ),
+          if (onTap != null)
+            const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppTheme.tealButton),
         ],
       ),
     );
@@ -297,7 +354,7 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
     if (onTap != null) {
       return InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: cardContent,
       );
     }
