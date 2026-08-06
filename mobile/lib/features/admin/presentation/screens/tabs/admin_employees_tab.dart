@@ -31,7 +31,10 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
   void _showAddEmployeeDialog() {
     final nameCtrl = TextEditingController();
     final nikCtrl = TextEditingController();
-    final passwordCtrl = TextEditingController(text: 'geosync123');
+    // CATATAN: Password karyawan dikelola oleh Supabase Auth, bukan di sini.
+    // Setelah karyawan ditambahkan ke direktori lokal, Admin WAJIB membuat
+    // akun Supabase Auth untuk karyawan tersebut secara manual melalui:
+    // Authentication → Users → Invite User (email: NIK@geosync.com)
 
     showModalBottomSheet(
       context: context,
@@ -78,11 +81,6 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: 'NIK / Corporate ID', hintText: 'Contoh: 2026031'),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordCtrl,
-              decoration: const InputDecoration(labelText: 'Password Default', helperText: 'Karyawan dapat mengganti sandi setelah login.'),
-            ),
             const SizedBox(height: 28),
             SizedBox(
               width: double.infinity,
@@ -97,7 +95,6 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
                       name: nameCtrl.text.trim(),
                       nik: nikCtrl.text.trim(),
                       email: '${nameCtrl.text.trim().toLowerCase().replaceAll(' ', '.')}@geosync.co.id',
-                      password: passwordCtrl.text.trim().isEmpty ? 'Geosync!2026' : passwordCtrl.text.trim(),
                       department: 'Staff Baru',
                       roleTitle: 'Specialist',
                       isActive: true,
@@ -110,8 +107,8 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
                     Navigator.pop(ctx);
                     AppToast.show(
                       context,
-                      title: 'Karyawan Ditambahkan',
-                      message: 'Akun "${nameCtrl.text}" (NIK: ${nikCtrl.text}) berhasil didaftarkan ke dalam database.',
+                      title: 'Karyawan Ditambahkan ke Direktori',
+                      message: 'Selanjutnya, buat akun login untuk ${nameCtrl.text} (NIK: ${nikCtrl.text}) melalui Supabase Auth Dashboard.',
                       type: ToastType.success,
                     );
                   }

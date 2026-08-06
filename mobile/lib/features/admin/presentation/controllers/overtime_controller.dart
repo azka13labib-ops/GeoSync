@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../overtime/models/overtime_request.dart';
 import '../../../../../core/services/local_storage_service.dart';
+import '../../../../../core/services/notification_service.dart';
 
 final overtimeControllerProvider = NotifierProvider<OvertimeController, List<OvertimeRequestItem>>(
   OvertimeController.new,
@@ -140,6 +141,13 @@ class OvertimeController extends Notifier<List<OvertimeRequestItem>> {
     }).toList();
     state = updated;
     _saveToStorage(updated);
+
+    if (newStatus != 'Pending') {
+      NotificationService.instance.showApprovalNotification(
+        type: 'Lembur',
+        status: newStatus.toLowerCase(),
+      );
+    }
   }
 
   void addRequest(OvertimeRequestItem item) {

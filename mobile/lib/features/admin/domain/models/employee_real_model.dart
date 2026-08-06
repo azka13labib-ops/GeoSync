@@ -1,6 +1,9 @@
 // ====================================================================
 // GEOSYNC - REAL EMPLOYEE & ATTENDANCE DOMAIN MODEL (30 KARYAWAN REAL)
-// Struktur data lengkap 30 Karyawan Real Indonesia dengan akun & persistensi JSON
+// Struktur data lengkap 30 Karyawan Real Indonesia dengan persistensi JSON.
+// CATATAN KEAMANAN: Field `password` telah dihapus dari model ini.
+// Password dikelola 100% oleh Supabase Auth. Admin WAJIB me-reset password
+// seluruh 30 karyawan melalui Supabase Dashboard (Authentication → Users).
 // ====================================================================
 
 import 'package:flutter/material.dart';
@@ -9,13 +12,12 @@ class RealEmployeeModel {
   final String nik;
   final String name;
   final String email;
-  final String password;
   final String department;
   final String roleTitle;
   final bool isActive;
   final int avatarColorHex;
-  
-  // Status Absensi Hari Ini / Berjalan (5 - 6 Agustus 2026)
+
+  // Status Absensi Hari Ini / Berjalan
   final String attendanceStatus; // 'Hadir', 'Terlambat', 'Belum Hadir', 'Cuti'
   final String attendanceTime;
   final String attendanceLocation;
@@ -25,7 +27,6 @@ class RealEmployeeModel {
     required this.nik,
     required this.name,
     required this.email,
-    required this.password,
     required this.department,
     required this.roleTitle,
     this.isActive = true,
@@ -42,7 +43,6 @@ class RealEmployeeModel {
     String? nik,
     String? name,
     String? email,
-    String? password,
     String? department,
     String? roleTitle,
     bool? isActive,
@@ -56,7 +56,6 @@ class RealEmployeeModel {
       nik: nik ?? this.nik,
       name: name ?? this.name,
       email: email ?? this.email,
-      password: password ?? this.password,
       department: department ?? this.department,
       roleTitle: roleTitle ?? this.roleTitle,
       isActive: isActive ?? this.isActive,
@@ -73,7 +72,6 @@ class RealEmployeeModel {
       'nik': nik,
       'name': name,
       'email': email,
-      'password': password,
       'department': department,
       'roleTitle': roleTitle,
       'isActive': isActive,
@@ -90,7 +88,6 @@ class RealEmployeeModel {
       nik: json['nik'] as String? ?? '00000',
       name: json['name'] as String? ?? 'Tanpa Nama',
       email: json['email'] as String? ?? 'email@geosync.co.id',
-      password: json['password'] as String? ?? 'Geosync!2026',
       department: json['department'] as String? ?? 'General',
       roleTitle: json['roleTitle'] as String? ?? 'Staff',
       isActive: json['isActive'] as bool? ?? true,
@@ -108,7 +105,6 @@ class RealEmployeeModel {
       nik: '2026001',
       name: 'Dionisius Pratama',
       email: 'dion.pratama@geosync.co.id',
-      password: 'Dion#2026',
       department: 'IT Support',
       roleTitle: 'Lead IT Specialist',
       avatarColorHex: 0xFF1B4E6B,
@@ -120,7 +116,6 @@ class RealEmployeeModel {
       nik: '2026002',
       name: 'Nadia Maharani',
       email: 'nadia.maharani@geosync.co.id',
-      password: 'Nadia#2026',
       department: 'Finance & Accounting',
       roleTitle: 'Senior Tax Specialist',
       avatarColorHex: 0xFF8DA3E8,
@@ -132,7 +127,6 @@ class RealEmployeeModel {
       nik: '2026003',
       name: 'Reza Anugrah',
       email: 'reza.anugrah@geosync.co.id',
-      password: 'Reza#2026',
       department: 'Operations',
       roleTitle: 'Field Operations Supervisor',
       avatarColorHex: 0xFF009688,
@@ -144,7 +138,6 @@ class RealEmployeeModel {
       nik: '2026004',
       name: 'Citra Kirana',
       email: 'citra.kirana@geosync.co.id',
-      password: 'Citra#2026',
       department: 'HR & GA',
       roleTitle: 'Talent Acquisition Executive',
       avatarColorHex: 0xFFE91E63,
@@ -157,7 +150,6 @@ class RealEmployeeModel {
       nik: '2026005',
       name: 'Bagas Saputra',
       email: 'bagas.saputra@geosync.co.id',
-      password: 'Bagas#2026',
       department: 'Sales & Marketing',
       roleTitle: 'Strategic Key Account Lead',
       avatarColorHex: 0xFFFF9800,
@@ -169,7 +161,6 @@ class RealEmployeeModel {
       nik: '2026006',
       name: 'Alyssa Putri',
       email: 'alyssa.putri@geosync.co.id',
-      password: 'Alyssa#2026',
       department: 'Customer Service',
       roleTitle: 'Head of Customer Success',
       avatarColorHex: 0xFF9C27B0,
@@ -181,7 +172,6 @@ class RealEmployeeModel {
       nik: '2026007',
       name: 'Hendra Gunawan',
       email: 'hendra.gunawan@geosync.co.id',
-      password: 'Hendra#2026',
       department: 'Engineering',
       roleTitle: 'Cloud Systems Architect',
       avatarColorHex: 0xFF3F51B5,
@@ -193,7 +183,6 @@ class RealEmployeeModel {
       nik: '2026008',
       name: 'Maya Septiana',
       email: 'maya.septiana@geosync.co.id',
-      password: 'Maya#2026',
       department: 'Public Relations',
       roleTitle: 'Corporate Communication Specialist',
       avatarColorHex: 0xFF4CAF50,
@@ -206,7 +195,6 @@ class RealEmployeeModel {
       nik: '2026009',
       name: 'Rangga Kurniawan',
       email: 'rangga.kurniawan@geosync.co.id',
-      password: 'Rangga#2026',
       department: 'Logistics',
       roleTitle: 'Supply Chain Analyst',
       avatarColorHex: 0xFF795548,
@@ -218,7 +206,6 @@ class RealEmployeeModel {
       nik: '2026010',
       name: 'Laila Anggraini',
       email: 'laila.anggraini@geosync.co.id',
-      password: 'Laila#2026',
       department: 'Product Management',
       roleTitle: 'Senior Product Owner',
       avatarColorHex: 0xFF607D8B,
@@ -230,7 +217,6 @@ class RealEmployeeModel {
       nik: '2026011',
       name: 'Fajar Surya',
       email: 'fajar.surya@geosync.co.id',
-      password: 'Fajar#2026',
       department: 'IT Support',
       roleTitle: 'Network Infrastructure Engineer',
       avatarColorHex: 0xFF1B4E6B,
@@ -242,7 +228,6 @@ class RealEmployeeModel {
       nik: '2026012',
       name: 'Karina Wulandari',
       email: 'karina.wulandari@geosync.co.id',
-      password: 'Karina#2026',
       department: 'Finance & Accounting',
       roleTitle: 'Budget & Treasury Manager',
       avatarColorHex: 0xFFE91E63,
@@ -254,7 +239,6 @@ class RealEmployeeModel {
       nik: '2026013',
       name: 'Dimas Anggoro',
       email: 'dimas.anggoro@geosync.co.id',
-      password: 'Dimas#2026',
       department: 'Operations',
       roleTitle: 'Regional Facilities Officer',
       avatarColorHex: 0xFF009688,
@@ -266,7 +250,6 @@ class RealEmployeeModel {
       nik: '2026014',
       name: 'Tari Puspa',
       email: 'tari.puspa@geosync.co.id',
-      password: 'Tari#2026',
       department: 'HR & GA',
       roleTitle: 'Employee Relations Generalist',
       avatarColorHex: 0xFF9C27B0,
@@ -278,7 +261,6 @@ class RealEmployeeModel {
       nik: '2026015',
       name: 'Satia Hidayat',
       email: 'satia.hidayat@geosync.co.id',
-      password: 'Satia#2026',
       department: 'Sales & Marketing',
       roleTitle: 'Digital Marketing Lead',
       avatarColorHex: 0xFFFF5722,
@@ -291,7 +273,6 @@ class RealEmployeeModel {
       nik: '2026016',
       name: 'Bella Saphira',
       email: 'bella.saphira@geosync.co.id',
-      password: 'Bella#2026',
       department: 'Customer Service',
       roleTitle: 'Quality Monitoring Officer',
       avatarColorHex: 0xFF3F51B5,
@@ -303,7 +284,6 @@ class RealEmployeeModel {
       nik: '2026017',
       name: 'Aditya Pradana',
       email: 'aditya.pradana@geosync.co.id',
-      password: 'Aditya#2026',
       department: 'Engineering',
       roleTitle: 'Backend Development Team Lead',
       avatarColorHex: 0xFF673AB7,
@@ -315,7 +295,6 @@ class RealEmployeeModel {
       nik: '2026018',
       name: 'Risti Pramesti',
       email: 'risti.pramesti@geosync.co.id',
-      password: 'Risti#2026',
       department: 'Public Relations',
       roleTitle: 'Social Media & Brand Manager',
       avatarColorHex: 0xFF00BCD4,
@@ -327,7 +306,6 @@ class RealEmployeeModel {
       nik: '2026019',
       name: 'Yoga Wibowo',
       email: 'yoga.wibowo@geosync.co.id',
-      password: 'Yoga#2026',
       department: 'Logistics',
       roleTitle: 'Fleet Management Coordinator',
       avatarColorHex: 0xFF4CAF50,
@@ -339,7 +317,6 @@ class RealEmployeeModel {
       nik: '2026020',
       name: 'Farah Lestari',
       email: 'farah.lestari@geosync.co.id',
-      password: 'Farah#2026',
       department: 'Product Management',
       roleTitle: 'UX Research Lead',
       avatarColorHex: 0xFF9C27B0,
@@ -351,7 +328,6 @@ class RealEmployeeModel {
       nik: '2026021',
       name: 'Gilang Ramadhan',
       email: 'gilang.ramadhan@geosync.co.id',
-      password: 'Gilang#2026',
       department: 'IT Support',
       roleTitle: 'Cyber Security Analyst',
       avatarColorHex: 0xFF1B4E6B,
@@ -363,7 +339,6 @@ class RealEmployeeModel {
       nik: '2026022',
       name: 'Siska Meliana',
       email: 'siska.meliana@geosync.co.id',
-      password: 'Siska#2026',
       department: 'Finance & Accounting',
       roleTitle: 'Financial Reporting Auditor',
       avatarColorHex: 0xFF8DA3E8,
@@ -376,7 +351,6 @@ class RealEmployeeModel {
       nik: '2026023',
       name: 'Doni Kusuma',
       email: 'doni.kusuma@geosync.co.id',
-      password: 'Doni#2026',
       department: 'Operations',
       roleTitle: 'Safety & HSE Coordinator',
       avatarColorHex: 0xFF009688,
@@ -388,7 +362,6 @@ class RealEmployeeModel {
       nik: '2026024',
       name: 'Indah Permatasari',
       email: 'indah.permatasari@geosync.co.id',
-      password: 'Indah#2026',
       department: 'HR & GA',
       roleTitle: 'Compensation & Benefit Specialist',
       avatarColorHex: 0xFFE91E63,
@@ -400,7 +373,6 @@ class RealEmployeeModel {
       nik: '2026025',
       name: 'Bayu Skak',
       email: 'bayu.skak@geosync.co.id',
-      password: 'Bayu#2026',
       department: 'Sales & Marketing',
       roleTitle: 'Brand Partnership Manager',
       avatarColorHex: 0xFFFF9800,
@@ -412,7 +384,6 @@ class RealEmployeeModel {
       nik: '2026026',
       name: 'Melinda Putri',
       email: 'melinda.putri@geosync.co.id',
-      password: 'Melinda#2026',
       department: 'Customer Service',
       roleTitle: 'Client Support Executive',
       avatarColorHex: 0xFF9C27B0,
@@ -424,7 +395,6 @@ class RealEmployeeModel {
       nik: '2026027',
       name: 'Kevin Julio',
       email: 'kevin.julio@geosync.co.id',
-      password: 'Kevin#2026',
       department: 'Engineering',
       roleTitle: 'Mobile Flutter Developer',
       avatarColorHex: 0xFF3F51B5,
@@ -437,7 +407,6 @@ class RealEmployeeModel {
       nik: '2026028',
       name: 'Devi Shanthi',
       email: 'devi.shanthi@geosync.co.id',
-      password: 'Devi#2026',
       department: 'Legal',
       roleTitle: 'Legal Counsel Executive',
       avatarColorHex: 0xFF795548,
@@ -449,7 +418,6 @@ class RealEmployeeModel {
       nik: '2026029',
       name: 'Bambang Pamungkas',
       email: 'bambang.pamungkas@geosync.co.id',
-      password: 'Bambang#2026',
       department: 'Logistics',
       roleTitle: 'Warehouse Supervisor',
       avatarColorHex: 0xFF607D8B,
@@ -461,7 +429,6 @@ class RealEmployeeModel {
       nik: '2026030',
       name: 'Annisa Rahma',
       email: 'annisa.rahma@geosync.co.id',
-      password: 'Annisa#2026',
       department: 'Quality Assurance',
       roleTitle: 'QA Lead Automation',
       avatarColorHex: 0xFF4CAF50,

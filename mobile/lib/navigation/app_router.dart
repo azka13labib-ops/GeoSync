@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/admin/presentation/screens/admin_main_screen.dart';
-import '../features/attendance/presentation/screens/employee_home_screen.dart';
+import '../features/attendance/presentation/screens/employee_main_screen.dart';
 import '../features/auth/domain/employee_model.dart';
 import '../features/auth/presentation/controllers/auth_controller.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
@@ -52,7 +52,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/employee/home',
         name: 'employee-home',
-        builder: (context, state) => const EmployeeHomeScreen(),
+        builder: (context, state) => const EmployeeMainScreen(),
       ),
       GoRoute(
         path: '/admin/dashboard',

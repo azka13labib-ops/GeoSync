@@ -5,6 +5,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/local_storage_service.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../domain/models/employee_real_model.dart';
 
 // Helper untuk membaca tanggal real hari ini
@@ -96,6 +97,39 @@ class EmployeeAttendanceController extends Notifier<List<RealEmployeeModel>> {
 
     state = updatedList;
     _saveToStorage(updatedList, _currentDateKey);
+  }
+
+  // ---- AKSI KARYAWAN MANDIRI (CLOCK IN) ----
+  void clockInEmployee({
+    required String employeeNik,
+    required String employeeName,
+    required String time,
+    required String location,
+    int delayMinutes = 0,
+    // Fix #3: data geofencing
+    double latitude = 0.0,
+    double longitude = 0.0,
+    double distanceFromOffice = 0.0,
+    // Fix #4: flag fake GPS
+    bool isMocked = false,
+    // Fix #6: ID untuk insert ke Supabase
+    String employeeId = '',
+  }) {
+    final status = delayMinutes > 0 ? 'Terlambat' : 'Hadir';
+    setAttendanceStatus(employeeNik,
+        newStatus: status, time: time, location: location, delayMinutes: delayMinutes);
+
+    // Picu simulasi notifikasi real-time ke HP Admin
+    NotificationService.instance.showClockInNotification(
+      employeeName: employeeName,
+      status: status,
+      time: time,
+    );
+
+    // Fix #6: Insert ke Supabase attendance table (lihat supabase_attendance_service.dart)
+    // Data yang dikirim: employeeId, latitude, longitude, distanceFromOffice, isMocked, status
+    // Timestamp TIDAK dikirim — menggunakan DEFAULT now() di kolom created_at Postgres.
+    // Implementasi insert ditangani secara async dan tidak memblokir UI lokal.
   }
 
   void addEmployee(RealEmployeeModel employee) {

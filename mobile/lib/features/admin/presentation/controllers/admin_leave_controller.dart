@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/services/local_storage_service.dart';
+import '../../../../../core/services/notification_service.dart';
 
 class LeaveRequestItem {
   final String id;
@@ -163,6 +164,19 @@ class AdminLeaveController extends Notifier<List<LeaveRequestItem>> {
       }
       return item;
     }).toList();
+    state = updated;
+    _saveToStorage(updated);
+
+    if (newStatus != 'Pending') {
+      NotificationService.instance.showApprovalNotification(
+        type: 'Cuti',
+        status: newStatus.toLowerCase(),
+      );
+    }
+  }
+
+  void addLeaveRequest(LeaveRequestItem item) {
+    final updated = [item, ...state];
     state = updated;
     _saveToStorage(updated);
   }

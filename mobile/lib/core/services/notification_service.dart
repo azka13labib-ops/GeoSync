@@ -70,9 +70,49 @@ class NotificationService {
     const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
 
     await _plugin.show(
-      1002,
-      '📊 GeoSync — Rekap Absensi Hari Ini',
-      'Hadir: $hadir karyawan | Terlambat: $terlambat karyawan.',
+      1002, // ID notifikasi
+      '📊 Ringkasan Kehadiran GeoSync',
+      'Hari ini: $hadir Karyawan Hadir, $terlambat Terlambat.',
+      details,
+    );
+  }
+
+  // --- FITUR REAL-TIME BARU (KARYAWAN <-> ADMIN) ---
+
+  Future<void> showClockInNotification({required String employeeName, required String status, required String time}) async {
+    const androidDetails = AndroidNotificationDetails(
+      'geosync_live_attendance',
+      'GeoSync - Live Absensi',
+      channelDescription: 'Notifikasi saat karyawan absen masuk',
+      importance: Importance.max,
+      priority: Priority.max,
+      icon: '@mipmap/ic_launcher',
+    );
+    const details = NotificationDetails(android: androidDetails, iOS: DarwinNotificationDetails());
+
+    await _plugin.show(
+      1003,
+      '📍 Karyawan Absen Masuk',
+      '$employeeName baru saja absen ($status) pada $time.',
+      details,
+    );
+  }
+
+  Future<void> showApprovalNotification({required String type, required String status}) async {
+    const androidDetails = AndroidNotificationDetails(
+      'geosync_approval',
+      'GeoSync - Status Persetujuan',
+      channelDescription: 'Notifikasi balasan persetujuan HRD',
+      importance: Importance.max,
+      priority: Priority.max,
+      icon: '@mipmap/ic_launcher',
+    );
+    const details = NotificationDetails(android: androidDetails, iOS: DarwinNotificationDetails());
+
+    await _plugin.show(
+      1004,
+      'Pembaruan $type',
+      'Pengajuan $type Anda telah $status oleh HRD.',
       details,
     );
   }
