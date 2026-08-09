@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import 'employee_home_screen.dart';
 import 'employee_camera_screen.dart';
 import 'employee_requests_tab.dart';
+import '../../../profile/presentation/screens/employee_profile_tab.dart';
 
 class EmployeeMainScreen extends ConsumerStatefulWidget {
   const EmployeeMainScreen({super.key});
@@ -19,6 +20,7 @@ class _EmployeeMainScreenState extends ConsumerState<EmployeeMainScreen> {
     const EmployeeHomeScreen(),
     const EmployeeCameraScreen(),
     const EmployeeRequestsTab(),
+    const EmployeeProfileTab(),
   ];
 
   @override
@@ -44,7 +46,7 @@ class _EmployeeMainScreenState extends ConsumerState<EmployeeMainScreen> {
           top: false,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final itemWidth = constraints.maxWidth / 3;
+              final itemWidth = constraints.maxWidth / 4;
               const pillHeight = 54.0;
 
               return SizedBox(
@@ -77,6 +79,7 @@ class _EmployeeMainScreenState extends ConsumerState<EmployeeMainScreen> {
                         _buildNavItem(0, Icons.dashboard_rounded, 'Beranda'),
                         _buildNavItem(1, Icons.camera_alt_rounded, 'Absen'),
                         _buildNavItem(2, Icons.description_rounded, 'Pengajuan'),
+                        _buildNavItem(3, Icons.person_rounded, 'Profil'),
                       ],
                     ),
                   ],

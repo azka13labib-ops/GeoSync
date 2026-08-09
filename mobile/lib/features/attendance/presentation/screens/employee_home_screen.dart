@@ -21,13 +21,6 @@ class EmployeeHomeScreen extends ConsumerWidget {
         title: const Text('Beranda', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: AppTheme.primaryColor)),
         backgroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: AppTheme.errorColor),
-            tooltip: 'Keluar Akun',
-            onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
-          ),
-        ],
       ),
       body: Stack(
         children: [
