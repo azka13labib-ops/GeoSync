@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../admin/presentation/controllers/employee_attendance_controller.dart';
+import 'employee_history_screen.dart';
 
 class EmployeeHomeScreen extends ConsumerWidget {
   const EmployeeHomeScreen({super.key});
@@ -100,7 +101,21 @@ class EmployeeHomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 32),
                 
-                const Text('Status Kehadiran Hari Ini', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Status Kehadiran Hari Ini', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
+                    TextButton(
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeeHistoryScreen())),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text('Lihat Riwayat', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.secondaryColor)),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 16),
                 
                 // Attendance Status Card
