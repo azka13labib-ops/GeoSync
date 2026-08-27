@@ -2,7 +2,7 @@
 // GEOSYNC - EMPLOYEE CAMERA & CLOCK-IN SCREEN
 // Fix #3: Geofencing nyata dengan Geolocator.distanceBetween()
 // Fix #4: Deteksi fake/mock GPS
-// Fix #5: Timestamp dari server Supabase (tidak dari device)
+// Fix #5: Timestamp dari Firebase (tidak dari device)
 // ====================================================================
 
 import 'dart:async';
@@ -10,17 +10,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/geofence_util.dart';
 import '../../../../core/widgets/app_toast.dart';
-import '../../../admin/presentation/controllers/employee_attendance_controller.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../data/attendance_service.dart';
 
 // -----------------------------------------------------------------------
 // KONFIGURASI GEOFENCING KANTOR
-// Idealnya dibaca dari tabel `office_locations` di Supabase.
+// Idealnya dibaca dari koleksi `office_locations` di Firestore.
 // Untuk saat ini dikonfigurasi di sini — ubah sesuai koordinat kantor asli.
 // -----------------------------------------------------------------------
 class _OfficeConfig {
@@ -251,31 +251,30 @@ class _EmployeeCameraScreenState extends ConsumerState<EmployeeCameraScreen> {
       if (_currentTime.hour > 8 || (_currentTime.hour == 8 && _currentTime.minute > 0)) {
         delayMinutes = (_currentTime.hour - 8) * 60 + _currentTime.minute;
       }
+      
+      // FIX #10: Autentikasi Biometrik sebelum mengizinkan clock-in
+      final LocalAuthentication auth = LocalAuthentication();
+      final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
+      final bool canAuthenticate = canAuthenticateWithBiometrics || await auth.isDeviceSupported();
 
-      // NOTE (Fix #5): Kita TIDAK mengirim timestamp dari device sebagai
-      // sumber kebenaran. Kolom `created_at` di tabel `attendance` memakai
-      // DEFAULT now() di level Postgres. Data yang dikirim ke sini hanya
-      // untuk keperluan tampilan lokal/cache, bukan untuk disimpan ke DB.
-      final timeStr =
-          '${_currentTime.hour.toString().padLeft(2, '0')}:${_currentTime.minute.toString().padLeft(2, '0')} WIB';
-      final locationLabel =
-          '${_OfficeConfig.officeName} (${_distanceFromOffice?.toStringAsFixed(0) ?? "?"}m)';
+      if (canAuthenticate) {
+        final bool didAuthenticate = await auth.authenticate(
+          localizedReason: 'Pindai sidik jari/wajah Anda untuk memvalidasi absensi',
+          options: const AuthenticationOptions(
+            biometricOnly: false,
+            stickyAuth: true,
+          ),
+        );
+        if (!didAuthenticate) {
+          setState(() => _isLoading = false);
+          AppToast.show(context, title: 'Absensi Dibatalkan', message: 'Autentikasi biometrik gagal atau dibatalkan.', type: ToastType.error);
+          return;
+        }
+      }
 
-      // Update state lokal (UI langsung responsif untuk admin)
-      ref.read(employeeAttendanceControllerProvider.notifier).clockInEmployee(
-        employeeNik: user.nik,
-        employeeName: user.fullName,
-        time: timeStr,
-        location: locationLabel,
-        delayMinutes: delayMinutes,
-        latitude: _currentPosition!.latitude,
-        longitude: _currentPosition!.longitude,
-        distanceFromOffice: _distanceFromOffice ?? 0,
-        isMocked: _isMocked,
-        employeeId: user.id,
-      );
+      // (Dihapus: pemanggilan dummy controller lokal)
 
-      // FIX #6: Kirim data absensi ke Supabase (sumber kebenaran)
+      // FIX #6: Kirim data absensi ke Firestore (sumber kebenaran)
       // Timestamp diisi oleh server (DEFAULT now() di Postgres), BUKAN dari device.
       await AttendanceService.instance.clockIn(
         AttendancePayload(

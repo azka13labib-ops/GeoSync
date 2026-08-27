@@ -70,7 +70,9 @@ class _AdminDashboardTabState extends ConsumerState<AdminDashboardTab> {
     final leaveList = ref.watch(adminLeaveControllerProvider);
     final leavePendingCount = leaveList.where((e) => e.status == 'Pending').length;
 
-    final allEmployees = ref.watch(employeeAttendanceControllerProvider);
+    final allEmployeesAsync = ref.watch(employeeAttendanceControllerProvider);
+    final allEmployees = allEmployeesAsync.value ?? [];
+    
     final activeCount = allEmployees.where((e) => e.isActive).length;
     final hadirCount = allEmployees.where((e) => e.attendanceStatus == 'Hadir').length;
     final terlambatCount = allEmployees.where((e) => e.attendanceStatus == 'Terlambat').length;

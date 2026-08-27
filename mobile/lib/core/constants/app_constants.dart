@@ -2,15 +2,12 @@
 // GEOSYNC - APPLICATION CONSTANTS & ENDPOINTS
 // ====================================================================
 
-import 'supabase_secrets.dart';
-
 class AppConstants {
   static const String appName = 'GeoSync';
   static const String appTagline = 'Enterprise Attendance & Geofencing System';
 
-  // Supabase Configuration (Safeguarded via local gitignored secret module)
-  static const String supabaseUrl = SupabaseSecrets.url;
-  static const String supabaseAnonKey = SupabaseSecrets.anonKey;
+  // Firestore Configuration
+  // (Menggunakan firebase_options.dart dari flutterfire CLI)
 
   // Database Tables
   static const String tableEmployees = 'employees';

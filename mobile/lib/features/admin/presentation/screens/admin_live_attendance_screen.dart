@@ -108,15 +108,8 @@ class _AdminLiveAttendanceScreenState extends ConsumerState<AdminLiveAttendanceS
                 icon: Icons.check_circle_outline_rounded,
                 iconColor: const Color(0xFF10B981),
                 onTap: () {
-                  ref.read(employeeAttendanceControllerProvider.notifier).setAttendanceStatus(
-                    emp.nik,
-                    newStatus: 'Hadir',
-                    time: '07:55 WIB',
-                    location: 'Head Office (dalam radius 24m)',
-                    delayMinutes: 0,
-                  );
                   Navigator.pop(ctx);
-                  _showSuccessToast(emp.name, 'Hadir Tepat Waktu');
+                  AppToast.show(context, title: 'Akses Ditolak', message: 'Fitur Set Manual dibatasi oleh Firestore Rules (Hanya pegawai yang bisa absen)', type: ToastType.error);
                 },
               ),
               _buildControlOption(
@@ -125,15 +118,8 @@ class _AdminLiveAttendanceScreenState extends ConsumerState<AdminLiveAttendanceS
                 icon: Icons.alarm_rounded,
                 iconColor: Colors.orange,
                 onTap: () {
-                  ref.read(employeeAttendanceControllerProvider.notifier).setAttendanceStatus(
-                    emp.nik,
-                    newStatus: 'Terlambat',
-                    time: '08:35 WIB',
-                    location: 'Head Office (dalam radius 30m)',
-                    delayMinutes: 35,
-                  );
                   Navigator.pop(ctx);
-                  _showSuccessToast(emp.name, 'Terlambat (35m)');
+                  AppToast.show(context, title: 'Akses Ditolak', message: 'Fitur Set Manual dibatasi oleh Firestore Rules', type: ToastType.error);
                 },
               ),
               _buildControlOption(
@@ -142,15 +128,8 @@ class _AdminLiveAttendanceScreenState extends ConsumerState<AdminLiveAttendanceS
                 icon: Icons.alarm_off_rounded,
                 iconColor: AppTheme.errorColor,
                 onTap: () {
-                  ref.read(employeeAttendanceControllerProvider.notifier).setAttendanceStatus(
-                    emp.nik,
-                    newStatus: 'Terlambat',
-                    time: '09:15 WIB',
-                    location: 'Head Office (dalam radius 55m)',
-                    delayMinutes: 75,
-                  );
                   Navigator.pop(ctx);
-                  _showSuccessToast(emp.name, 'Terlambat Berat (75m)');
+                  AppToast.show(context, title: 'Akses Ditolak', message: 'Fitur Set Manual dibatasi oleh Firestore Rules', type: ToastType.error);
                 },
               ),
               _buildControlOption(
@@ -159,15 +138,8 @@ class _AdminLiveAttendanceScreenState extends ConsumerState<AdminLiveAttendanceS
                 icon: Icons.flight_takeoff_rounded,
                 iconColor: const Color(0xFF3B82F6),
                 onTap: () {
-                  ref.read(employeeAttendanceControllerProvider.notifier).setAttendanceStatus(
-                    emp.nik,
-                    newStatus: 'Cuti',
-                    time: '—',
-                    location: 'Cuti Disetujui HR Executive',
-                    delayMinutes: 0,
-                  );
                   Navigator.pop(ctx);
-                  _showSuccessToast(emp.name, 'Cuti Resmi');
+                  AppToast.show(context, title: 'Akses Ditolak', message: 'Fitur Set Manual dibatasi oleh Firestore Rules', type: ToastType.error);
                 },
               ),
               _buildControlOption(
@@ -176,15 +148,8 @@ class _AdminLiveAttendanceScreenState extends ConsumerState<AdminLiveAttendanceS
                 icon: Icons.restore_rounded,
                 iconColor: AppTheme.textSecondary,
                 onTap: () {
-                  ref.read(employeeAttendanceControllerProvider.notifier).setAttendanceStatus(
-                    emp.nik,
-                    newStatus: 'Belum Hadir',
-                    time: '—',
-                    location: 'Belum ada rekam jejak',
-                    delayMinutes: 0,
-                  );
                   Navigator.pop(ctx);
-                  _showSuccessToast(emp.name, 'Belum Hadir / Reset');
+                  AppToast.show(context, title: 'Akses Ditolak', message: 'Fitur Set Manual dibatasi oleh Firestore Rules', type: ToastType.error);
                 },
               ),
             ],
@@ -244,18 +209,10 @@ class _AdminLiveAttendanceScreenState extends ConsumerState<AdminLiveAttendanceS
     );
   }
 
-  void _showSuccessToast(String name, String status) {
-    AppToast.show(
-      context,
-      title: 'Status Diperbarui',
-      message: 'Kehadiran $name telah diatur ke "$status" dan tersimpan di database lokal.',
-      type: ToastType.success,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final allEmployees = ref.watch(employeeAttendanceControllerProvider);
+    final allEmployeesAsync = ref.watch(employeeAttendanceControllerProvider);
+    final allEmployees = allEmployeesAsync.value ?? [];
     final selectedDate = ref.watch(selectedAttendanceDateProvider);
 
     final totalCount = allEmployees.length;
@@ -301,13 +258,7 @@ class _AdminLiveAttendanceScreenState extends ConsumerState<AdminLiveAttendanceS
             icon: const Icon(Icons.refresh_rounded, color: AppTheme.tealButton),
             tooltip: 'Reset Absensi Hari Ini',
             onPressed: () {
-              ref.read(employeeAttendanceControllerProvider.notifier).resetDataForCurrentDate();
-              AppToast.show(
-                context,
-                title: 'Absensi Direset',
-                message: 'Data absensi untuk $selectedDate dikomparasi ulang ke default awal.',
-                type: ToastType.info,
-              );
+              AppToast.show(context, title: 'Tidak Didukung', message: 'Reset massal diblokir oleh Firestore Security Rules.', type: ToastType.error);
             },
           ),
           const SizedBox(width: 6),

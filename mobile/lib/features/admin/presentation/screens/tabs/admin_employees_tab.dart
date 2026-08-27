@@ -89,26 +89,22 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
                 style: ElevatedButton.styleFrom(backgroundColor: AppTheme.tealButton),
                 icon: const Icon(Icons.check_circle_outline_rounded),
                 label: const Text('Simpan & Aktifkan Akun', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                onPressed: () {
+                onPressed: () async {
                   if (nameCtrl.text.isNotEmpty && nikCtrl.text.isNotEmpty) {
-                    final newEmp = RealEmployeeModel(
-                      name: nameCtrl.text.trim(),
-                      nik: nikCtrl.text.trim(),
-                      email: '${nameCtrl.text.trim().toLowerCase().replaceAll(' ', '.')}@geosync.co.id',
-                      department: 'Staff Baru',
-                      roleTitle: 'Specialist',
-                      isActive: true,
-                      avatarColorHex: AppTheme.tealButton.toARGB32(),
-                      attendanceStatus: 'Hadir',
-                      attendanceTime: '08:00 WIB',
-                      attendanceLocation: 'Head Office',
-                    );
-                    ref.read(employeeAttendanceControllerProvider.notifier).addEmployee(newEmp);
+                    final newEmp = {
+                      'fullName': nameCtrl.text.trim(),
+                      'nik': nikCtrl.text.trim(),
+                      'email': '${nameCtrl.text.trim().toLowerCase().replaceAll(' ', '.')}@geosync.co.id',
+                      'departmentId': 'Staff Baru',
+                      'role': 'Specialist',
+                      'isActive': true,
+                    };
+                    await AdminActionController.addEmployee(newEmp);
                     Navigator.pop(ctx);
                     AppToast.show(
                       context,
-                      title: 'Karyawan Ditambahkan ke Direktori',
-                      message: 'Selanjutnya, buat akun login untuk ${nameCtrl.text} (NIK: ${nikCtrl.text}) melalui Firebase Console.',
+                      title: 'Karyawan Ditambahkan ke Firestore',
+                      message: 'Data tersimpan. Harap buat kredensial login via Firebase Auth Console.',
                       type: ToastType.success,
                     );
                   }
@@ -152,14 +148,14 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
               leading: Icon(emp.isActive ? Icons.block_flipped : Icons.check_circle_outline, color: emp.isActive ? AppTheme.errorColor : AppTheme.secondaryColor),
               title: Text(emp.isActive ? 'Nonaktifkan Akun' : 'Aktifkan Kembali Akun', style: TextStyle(fontWeight: FontWeight.w600, color: emp.isActive ? AppTheme.errorColor : AppTheme.secondaryColor)),
               onTap: () {
-                final updated = emp.copyWith(isActive: !emp.isActive);
-                ref.read(employeeAttendanceControllerProvider.notifier).updateEmployeeDetails(updated);
+                // Di versi Firebase, logic update ke Firestore ada di sini
+                // Untuk sekarang (MVP), tampilkan toast not supported
                 Navigator.pop(ctx);
                 AppToast.show(
                   context,
-                  title: emp.isActive ? 'Akun Dinonaktifkan' : 'Akun Diaktifkan Kembali',
-                  message: 'Status akses sistem untuk ${emp.name} telah diperbarui (Persisten).',
-                  type: emp.isActive ? ToastType.error : ToastType.success,
+                  title: 'Akses Ditolak',
+                  message: 'Fitur aktifasi via UI Admin dibatasi. Ubah langsung di Firestore.',
+                  type: ToastType.error,
                 );
               },
             ),
@@ -171,16 +167,7 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
 
   @override
   Widget build(BuildContext context) {
-    final employeesList = ref.watch(employeeAttendanceControllerProvider);
-
-    // Filter list
-    final filteredList = employeesList.where((emp) {
-      final matchesQuery = emp.name.toLowerCase().contains(_searchQuery.toLowerCase()) || emp.nik.contains(_searchQuery);
-      if (!matchesQuery) return false;
-      if (_selectedFilter == 'Aktif') return emp.isActive;
-      if (_selectedFilter == 'Nonaktif') return !emp.isActive;
-      return true;
-    }).toList();
+    final employeesListAsync = ref.watch(employeeAttendanceControllerProvider);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
@@ -255,74 +242,101 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
 
             // Employee Cards List
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                itemCount: filteredList.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final emp = filteredList[index];
-                  return Container(
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppTheme.borderLight, width: 1.2),
-                      boxShadow: AppTheme.softCardShadow,
-                    ),
-                    child: Row(
-                      children: [
-                        // Avatar Initial or photo
-                        CircleAvatar(
-                          radius: 28,
-                          backgroundColor: emp.avatarColor,
-                          child: Text(
-                            emp.name[0].toUpperCase(),
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
+              child: employeesListAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+                error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(color: AppTheme.errorColor))),
+                data: (employeesList) {
+                  final filteredList = employeesList.where((emp) {
+                    final matchesQuery = emp.name.toLowerCase().contains(_searchQuery.toLowerCase()) || emp.nik.contains(_searchQuery);
+                    if (!matchesQuery) return false;
+                    if (_selectedFilter == 'Aktif') return emp.isActive;
+                    if (_selectedFilter == 'Nonaktif') return !emp.isActive;
+                    return true;
+                  }).toList();
 
-                        // Name & NIK
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                emp.name,
-                                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+                  if (filteredList.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.people_outline, size: 64, color: AppTheme.textSecondary.withOpacity(0.5)),
+                          const SizedBox(height: 16),
+                          const Text('Belum ada data karyawan', style: TextStyle(color: AppTheme.textSecondary)),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                    itemCount: filteredList.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final emp = filteredList[index];
+                      return Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppTheme.borderLight, width: 1.2),
+                          boxShadow: AppTheme.softCardShadow,
+                        ),
+                        child: Row(
+                          children: [
+                            // Avatar Initial or photo
+                            CircleAvatar(
+                              radius: 28,
+                              backgroundColor: emp.avatarColor,
+                              child: Text(
+                                emp.name[0].toUpperCase(),
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'NIK: ${emp.nik}  •  ${emp.department}',
-                                style: const TextStyle(fontSize: 13.5, color: AppTheme.textSecondary),
-                              ),
-                              const SizedBox(height: 10),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: emp.isActive ? AppTheme.badgeMintBg : AppTheme.badgeGreyBg,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  emp.isActive ? 'Aktif' : 'Nonaktif',
-                                  style: TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: emp.isActive ? AppTheme.badgeMintText : AppTheme.badgeGreyText,
+                            ),
+                            const SizedBox(width: 16),
+
+                            // Name & NIK
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    emp.name,
+                                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
                                   ),
-                                ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'NIK: ${emp.nik}  •  ${emp.department}',
+                                    style: const TextStyle(fontSize: 13.5, color: AppTheme.textSecondary),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: emp.isActive ? AppTheme.badgeMintBg : AppTheme.badgeGreyBg,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      emp.isActive ? 'Aktif' : 'Nonaktif',
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: emp.isActive ? AppTheme.badgeMintText : AppTheme.badgeGreyText,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
+                            ),
 
-                        // 3 dots menu button
-                        IconButton(
-                          icon: const Icon(Icons.more_vert_rounded, color: AppTheme.textSecondary),
-                          onPressed: () => _showEmployeeOptions(emp),
+                            // 3 dots menu button
+                            IconButton(
+                              icon: const Icon(Icons.more_vert_rounded, color: AppTheme.textSecondary),
+                              onPressed: () => _showEmployeeOptions(emp),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   );
                 },
               ),

@@ -78,7 +78,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             onPressed: () => Navigator.of(ctx).pop(),
             child: const Text('Mengerti', style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.w700)),
           ),
-        ],
+        ],  
       ),
     );
   }
@@ -214,7 +214,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: _nikController,
-                              keyboardType: TextInputType.number,
+                              keyboardType: TextInputType.text,
                               style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary),
                               decoration: const InputDecoration(
                                 hintText: 'Contoh: 11111 atau 12345',

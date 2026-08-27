@@ -13,7 +13,8 @@ class EmployeeHomeScreen extends ConsumerWidget {
     final user = ref.watch(authControllerProvider).user;
     
     // Cari status absensi hari ini dari list admin (karena pakai memory lokal yg sama)
-    final allEmployees = ref.watch(employeeAttendanceControllerProvider);
+    final allEmployeesAsync = ref.watch(employeeAttendanceControllerProvider);
+    final allEmployees = allEmployeesAsync.value ?? [];
     final myAttendance = allEmployees.where((e) => e.nik == user?.nik).firstOrNull;
 
     return Scaffold(

@@ -12,7 +12,8 @@ class EmployeeHistoryScreen extends ConsumerWidget {
     final user = ref.watch(authControllerProvider).user;
     
     // Filter history for current user
-    final allAttendance = ref.watch(employeeAttendanceControllerProvider);
+    final allAttendanceAsync = ref.watch(employeeAttendanceControllerProvider);
+    final allAttendance = allAttendanceAsync.value ?? [];
     final myHistory = allAttendance.where((e) => e.nik == user?.nik).toList();
 
     return Scaffold(
