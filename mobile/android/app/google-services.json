@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "123710732937",
+    "project_id": "geosync-f8647",
+    "storage_bucket": "geosync-f8647.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123710732937:android:59bef0da76caebf7a22458",
+        "android_client_info": {
+          "package_name": "com.geosync.geosync"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfYHJFvfQrvvHp_omW-CZQeX0CitBu-NI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

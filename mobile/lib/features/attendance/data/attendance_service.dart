@@ -21,6 +21,7 @@ class AttendancePayload {
   final bool isMocked;
   final String status;
   final String? photoUrl;
+  final DateTime? deviceTimestamp; // Untuk merekam waktu sebenarnya saat offline
 
   const AttendancePayload({
     required this.employeeId,
@@ -31,6 +32,7 @@ class AttendancePayload {
     required this.isMocked,
     required this.status,
     this.photoUrl,
+    this.deviceTimestamp,
   });
 
   Map<String, dynamic> toJson() => {
@@ -42,8 +44,9 @@ class AttendancePayload {
         'is_mocked': isMocked,
         'status': status,
         if (photoUrl != null) 'photo_url': photoUrl,
-        // Di Firestore, kita menggunakan serverTimestamp
-        'created_at': FieldValue.serverTimestamp(),
+        if (deviceTimestamp != null) 'device_timestamp': deviceTimestamp!.toIso8601String(),
+        // Waktu aktual dokumen diterima server (bisa berbeda jauh dengan device_timestamp jika sempat offline)
+        'server_created_at': FieldValue.serverTimestamp(),
       };
 
   factory AttendancePayload.fromJson(Map<String, dynamic> json) {
@@ -56,6 +59,7 @@ class AttendancePayload {
       isMocked: json['is_mocked'],
       status: json['status'],
       photoUrl: json['photo_url'],
+      deviceTimestamp: json['device_timestamp'] != null ? DateTime.parse(json['device_timestamp']) : null,
     );
   }
 }
@@ -127,6 +131,7 @@ class AttendanceService {
       'is_mocked': payload.isMocked,
       'status': payload.status,
       if (payload.photoUrl != null) 'photo_url': payload.photoUrl,
+      'device_timestamp': payload.deviceTimestamp?.toIso8601String() ?? DateTime.now().toIso8601String(),
     };
     
     queueStr.add(jsonEncode(jsonMap));

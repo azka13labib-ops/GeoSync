@@ -286,6 +286,7 @@ class _EmployeeCameraScreenState extends ConsumerState<EmployeeCameraScreen> {
           distanceFromOffice: _distanceFromOffice ?? 0,
           isMocked: _isMocked,
           status: delayMinutes > 0 ? 'Terlambat' : 'Hadir',
+          deviceTimestamp: DateTime.now(),
         ),
       );
 
