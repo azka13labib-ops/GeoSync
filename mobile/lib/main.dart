@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'core/constants/app_constants.dart';
-import 'core/network/supabase_client.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/local_storage_service.dart';
 import 'features/attendance/data/attendance_service.dart';
@@ -32,7 +31,6 @@ void main() async {
     debugPrint('Firebase init failed. Crashlytics will not work. Run "flutterfire configure". Error: $e');
   }
 
-  await AppSupabase.init();
   await LocalStorageService.init(); // Inisialisasi penyimpanan persistem lokal
   AttendanceService.instance.initOfflineQueueListener(); // Fix #14: Offline Queue Sync
   await NotificationService.instance.init(); // Inisialisasi sistem notifikasi HP

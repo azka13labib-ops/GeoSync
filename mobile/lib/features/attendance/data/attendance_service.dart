@@ -1,7 +1,7 @@
 // ====================================================================
-// GEOSYNC - ATTENDANCE SERVICE (FIX #6 & FIX #14)
-// Mengirim data absensi ke Supabase.
-// Fix #14: Dilengkapi mekanisme antrean (offline queue) otomatis
+// GEOSYNC - ATTENDANCE SERVICE (FIREBASE VERSION)
+// Mengirim data absensi ke Firestore.
+// Dilengkapi mekanisme antrean (offline queue) otomatis
 // jika perangkat sedang tidak memiliki koneksi internet.
 // ====================================================================
 
@@ -9,10 +9,9 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../../core/network/supabase_client.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Data payload yang dikirim ke Supabase saat clock-in.
+/// Data payload yang dikirim ke Firestore saat clock-in.
 class AttendancePayload {
   final String employeeId;
   final String employeeNik;
@@ -43,6 +42,8 @@ class AttendancePayload {
         'is_mocked': isMocked,
         'status': status,
         if (photoUrl != null) 'photo_url': photoUrl,
+        // Di Firestore, kita menggunakan serverTimestamp
+        'created_at': FieldValue.serverTimestamp(),
       };
 
   factory AttendancePayload.fromJson(Map<String, dynamic> json) {
@@ -63,11 +64,11 @@ class AttendanceService {
   static final AttendanceService instance = AttendanceService._();
   AttendanceService._();
 
-  final SupabaseClient _supabase = AppSupabase.client;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static const String _queueKey = 'offline_attendance_queue';
   bool _isSyncing = false;
 
-  /// Memulai listener koneksi untuk auto-sync ketika internet kembali (Fix #14)
+  /// Memulai listener koneksi untuk auto-sync ketika internet kembali
   void initOfflineQueueListener() {
     Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
       if (results.contains(ConnectivityResult.mobile) ||
@@ -79,10 +80,21 @@ class AttendanceService {
     syncOfflineQueue();
   }
 
-  /// Insert data absensi ke Supabase atau Queue lokal (Fix #14)
+  /// Insert data absensi ke Firestore atau Queue lokal
   Future<void> clockIn(AttendancePayload payload) async {
     final connectivity = await Connectivity().checkConnectivity();
     final isOffline = connectivity.contains(ConnectivityResult.none);
+
+    // KARENA Firestore tidak punya trigger otomatis, validasi mock GPS
+    // kita enforce secara keras di sisi client sebelum masuk queue/database.
+    if (payload.isMocked) {
+      throw Exception('Server menolak: Lokasi palsu terdeteksi. Hubungi Admin.');
+    }
+    
+    // Asumsi jarak maksimum adalah 50 meter (bisa diatur)
+    if (payload.distanceFromOffice > 50) {
+      throw Exception('Server menolak: Anda di luar radius kantor.');
+    }
 
     if (isOffline) {
       await _saveToQueue(payload);
@@ -90,13 +102,8 @@ class AttendanceService {
     }
 
     try {
-      await _supabase.from('attendance').insert(payload.toJson());
-    } on PostgrestException catch (e) {
-      if (e.message.contains('GEOFENCE_MOCKED')) {
-        throw Exception('Server menolak: Lokasi palsu terdeteksi. Hubungi Admin.');
-      } else if (e.message.contains('GEOFENCE_OUT_OF_RANGE')) {
-        throw Exception('Server menolak: Anda di luar radius kantor.');
-      }
+      await _firestore.collection('attendance').add(payload.toJson());
+    } on FirebaseException catch (e) {
       throw Exception('Gagal menyimpan absensi: ${e.message}');
     } catch (e) {
       // Jika error network/unknown lain, anggap offline dan antre
@@ -108,7 +115,21 @@ class AttendanceService {
   Future<void> _saveToQueue(AttendancePayload payload) async {
     final prefs = await SharedPreferences.getInstance();
     final queueStr = prefs.getStringList(_queueKey) ?? [];
-    queueStr.add(jsonEncode(payload.toJson()));
+    
+    // Perlu di-convert ke Map tanpa FieldValue.serverTimestamp 
+    // karena FieldValue tidak bisa di JSON encode.
+    final jsonMap = {
+      'employee_id': payload.employeeId,
+      'employee_nik': payload.employeeNik,
+      'latitude': payload.latitude,
+      'longitude': payload.longitude,
+      'distance_from_office': payload.distanceFromOffice,
+      'is_mocked': payload.isMocked,
+      'status': payload.status,
+      if (payload.photoUrl != null) 'photo_url': payload.photoUrl,
+    };
+    
+    queueStr.add(jsonEncode(jsonMap));
     await prefs.setStringList(_queueKey, queueStr);
     debugPrint('[GeoSync-Offline] Absensi disimpan di antrean offline. Total antrean: ${queueStr.length}');
   }
@@ -132,11 +153,9 @@ class AttendanceService {
         final Map<String, dynamic> jsonMap = jsonDecode(itemStr);
         final payload = AttendancePayload.fromJson(jsonMap);
         
-        await _supabase.from('attendance').insert(payload.toJson());
+        await _firestore.collection('attendance').add(payload.toJson());
         debugPrint('[GeoSync-Sync] Berhasil upload absensi tertunda untuk NIK: ${payload.employeeNik}');
       } catch (e) {
-        // Jika gagal karena ditolak trigger (misal mock GPS), data akan hilang/dibuang (wajar)
-        // Jika gagal karena network, simpan kembali
         if (e.toString().contains('Failed host lookup') || e.toString().contains('Connection')) {
           failedQueue.add(itemStr);
         }

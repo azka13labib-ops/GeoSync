@@ -31,10 +31,10 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
   void _showAddEmployeeDialog() {
     final nameCtrl = TextEditingController();
     final nikCtrl = TextEditingController();
-    // CATATAN: Password karyawan dikelola oleh Supabase Auth, bukan di sini.
+    // CATATAN: Password karyawan dikelola oleh Firebase Auth, bukan di sini.
     // Setelah karyawan ditambahkan ke direktori lokal, Admin WAJIB membuat
-    // akun Supabase Auth untuk karyawan tersebut secara manual melalui:
-    // Authentication → Users → Invite User (email: NIK@geosync.com)
+    // akun Firebase Auth untuk karyawan tersebut secara manual melalui:
+    // Authentication → Users → Add user (email: NIK@geosync.com)
 
     showModalBottomSheet(
       context: context,
@@ -108,7 +108,7 @@ class _AdminEmployeesTabState extends ConsumerState<AdminEmployeesTab> {
                     AppToast.show(
                       context,
                       title: 'Karyawan Ditambahkan ke Direktori',
-                      message: 'Selanjutnya, buat akun login untuk ${nameCtrl.text} (NIK: ${nikCtrl.text}) melalui Supabase Auth Dashboard.',
+                      message: 'Selanjutnya, buat akun login untuk ${nameCtrl.text} (NIK: ${nikCtrl.text}) melalui Firebase Console.',
                       type: ToastType.success,
                     );
                   }

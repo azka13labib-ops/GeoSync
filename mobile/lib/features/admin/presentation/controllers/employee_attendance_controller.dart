@@ -126,9 +126,9 @@ class EmployeeAttendanceController extends Notifier<List<RealEmployeeModel>> {
       time: time,
     );
 
-    // Fix #6: Insert ke Supabase attendance table (lihat supabase_attendance_service.dart)
+    // Fix #6: Insert ke Firestore attendance collection (lihat attendance_service.dart)
     // Data yang dikirim: employeeId, latitude, longitude, distanceFromOffice, isMocked, status
-    // Timestamp TIDAK dikirim — menggunakan DEFAULT now() di kolom created_at Postgres.
+    // Timestamp dikirim menggunakan FieldValue.serverTimestamp() di service.
     // Implementasi insert ditangani secara async dan tidak memblokir UI lokal.
   }
 

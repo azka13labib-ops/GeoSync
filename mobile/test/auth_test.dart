@@ -4,7 +4,7 @@ import 'package:geosync/features/auth/domain/employee_model.dart';
 import 'package:geosync/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:geosync/features/auth/data/auth_repository.dart';
 
-// Mock sederhana untuk AuthRepository agar bisa diuji tanpa Supabase asli
+// Mock sederhana untuk AuthRepository agar bisa diuji tanpa Firebase asli
 class MockAuthRepository implements AuthRepository {
   bool shouldSucceed = true;
   String currentDeviceUuid = 'device-123';

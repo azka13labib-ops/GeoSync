@@ -2,8 +2,8 @@
 // GEOSYNC - REAL EMPLOYEE & ATTENDANCE DOMAIN MODEL (30 KARYAWAN REAL)
 // Struktur data lengkap 30 Karyawan Real Indonesia dengan persistensi JSON.
 // CATATAN KEAMANAN: Field `password` telah dihapus dari model ini.
-// Password dikelola 100% oleh Supabase Auth. Admin WAJIB me-reset password
-// seluruh 30 karyawan melalui Supabase Dashboard (Authentication → Users).
+// Password dikelola 100% oleh Firebase Auth. Admin WAJIB me-reset password
+// seluruh 30 karyawan melalui Firebase Console (Authentication → Users).
 // ====================================================================
 
 import 'package:flutter/material.dart';
